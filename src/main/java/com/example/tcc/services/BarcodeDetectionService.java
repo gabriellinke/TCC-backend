@@ -196,16 +196,16 @@ public class BarcodeDetectionService {
         MatOfPoint largestContour = findLargestContour(eroded);
         Mat finalImage = extractLargestContour(croppedImage, largestContour);
 
-        if (debug) {
-            Path filePath = uploadPath.resolve("final_image.jpg");
-            Imgcodecs.imwrite(filePath.toString(), finalImage!=null ? finalImage : croppedImage);
+        if(finalImage == null) {
+            System.err.println("Código de barras não encontrado. Retornando imagem completa");
+            finalImage = croppedImage;
         }
 
-        if(finalImage != null) {
-            return matToBufferedImage(finalImage);
-        } else {
-            System.err.println("Código de barras não encontrado. Retornando imagem completa");
-            return matToBufferedImage(croppedImage);
+        if (debug) {
+            Path filePath = uploadPath.resolve("final_image.jpg");
+            Imgcodecs.imwrite(filePath.toString(), finalImage);
         }
+
+        return matToBufferedImage(finalImage);
     }
 }
