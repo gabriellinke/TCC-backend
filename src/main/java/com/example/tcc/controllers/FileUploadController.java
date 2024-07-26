@@ -3,6 +3,7 @@ package com.example.tcc.controllers;
 import com.example.tcc.services.BarcodeDetectionService;
 import com.example.tcc.services.BarcodeReaderService;
 import com.example.tcc.services.FileUploadService;
+import com.example.tcc.services.OCRService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,12 +26,21 @@ public class FileUploadController {
     @Autowired
     private BarcodeDetectionService barcodeDetectionService;
 
+    @Autowired
+    private OCRService ocrService;
+
+
     @PostMapping
     public void upload(@RequestParam MultipartFile image) {
         String path = fileUploadService.saveImage(image);
         BufferedImage bufferedImage = barcodeDetectionService.detectBarcode(path);
         String barcode = barcodeReaderService.read(bufferedImage);
-        System.out.println(barcode);
+        if(barcode != null) {
+            System.out.println(barcode + "1.0");
+        } else {
+            String number = ocrService.performOCR(bufferedImage);
+            System.out.println(number);
+        }
     }
 
 }
