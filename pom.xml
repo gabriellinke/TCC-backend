@@ -58,6 +58,31 @@
 			<version>4.5.1-2</version>
 		</dependency>
 
+		<!-- Dependência PDF -->
+		<!-- iText 7 Core -->
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>itext7-core</artifactId>
+			<version>7.2.5</version> <!-- Substitua pela versão mais recente -->
+		</dependency>
+		<!-- iText 7 Layout (para manipulação de layout e documentos) -->
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>itext7-layout</artifactId>
+			<version>7.2.5</version> <!-- Substitua pela versão mais recente -->
+		</dependency>
+		<!-- iText 7 IO (para leitura e escrita de arquivos) -->
+		<dependency>
+			<groupId>com.itextpdf</groupId>
+			<artifactId>itext7-io</artifactId>
+			<version>7.2.5</version> <!-- Substitua pela versão mais recente -->
+		</dependency>
+		<dependency>
+			<groupId>org.apache.pdfbox</groupId>
+			<artifactId>pdfbox</artifactId>
+			<version>3.0.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>com.google.zxing</groupId>
 			<artifactId>core</artifactId>

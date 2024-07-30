@@ -41,12 +41,12 @@ public class FileUploadController {
     private String getAssetNumber(BufferedImage bufferedImage) {
         String barcode = barcodeReaderService.read(bufferedImage);
         if(barcode != null) {
-            System.out.println(barcode + "1.0");
+            System.out.println(barcode + ", 1.0");
             return barcode;
         }
 
         String number = ocrService.performOCR(bufferedImage);
         System.out.println(number);
-        return number;
+        return number.split(",")[0].trim();
     }
 }
