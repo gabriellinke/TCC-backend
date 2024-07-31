@@ -1,5 +1,10 @@
 package com.example.tcc.services;
 
+import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -10,8 +15,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+
 @Service
-public class FileUploadService {
+public class ImageUploadService {
     @Value("${tcc.disk.images-directory}")
     private String imageDirectory;
 
@@ -26,16 +33,15 @@ public class FileUploadService {
                 Files.createDirectories(uploadPath);
             }
 
-            // Gera um nome de arquivo único
-            String originalFilename = file.getOriginalFilename();
-            String fileExtension = originalFilename.substring(originalFilename.lastIndexOf("."));
-            String uniqueFilename = UUID.randomUUID().toString() + fileExtension;
-
+            // Gera um nome de arquivo único com a extensão .jpg
+            String uniqueFilename = UUID.randomUUID().toString() + ".jpg";
             Path filePath = uploadPath.resolve(uniqueFilename);
-            file.transferTo(filePath.toFile());
+
+            // Converte e salva a imagem no formato JPEG
+            File convertedFile = new File(filePath.toString());
+            file.transferTo(convertedFile);
 
             return filePath.toString();
-
         } catch (IOException e) {
             throw new RuntimeException("Erro no upload do arquivo", e);
         }
