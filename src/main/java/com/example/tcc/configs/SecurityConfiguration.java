@@ -22,9 +22,8 @@ public class SecurityConfiguration {
                 authorizeRequests
                     .anyRequest().permitAll()  // Permite acesso a todas as rotas sem autenticação
             )
-            .requiresChannel(channel ->
-                channel.anyRequest().requiresSecure())
-            .csrf().disable();  // Desabilita CSRF para facilitar testes (não recomendado para produção)
+            .requiresChannel(channel -> channel.anyRequest().requiresSecure())
+            .cors().and().csrf().disable();  // Desabilita CSRF para facilitar testes (não recomendado para produção)
         return http.build();
     }
 
@@ -32,12 +31,12 @@ public class SecurityConfiguration {
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        configuration.setAllowedOrigins(List.of("https://192.168.0.118:4200"));
-        configuration.setAllowedMethods(List.of("GET","POST","PUT","DELETE"));
-        configuration.setAllowedHeaders(List.of("Authorization","Content-Type"));
+        configuration.setAllowedOriginPatterns(List.of("*"));
+        configuration.setAllowedMethods(List.of("*"));
+        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
         source.registerCorsConfiguration("/**",configuration);
 
         return source;
