@@ -1,6 +1,6 @@
 package com.example.tcc.services;
 
-import com.example.tcc.models.EspelhoPatrimonioResponse;
+import com.example.tcc.dto.EspelhoPatrimonioResponseDto;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -72,7 +72,7 @@ public class PDFGenerationService {
         return table;
     }
 
-    private void addDataToTable(Table table, EspelhoPatrimonioResponse data) {
+    private void addDataToTable(Table table, EspelhoPatrimonioResponseDto data) {
             // Adicionar dados à tabela
             table.addCell(new Cell().add(new Paragraph(data.getTombo())));
             table.addCell(new Cell().add(new Paragraph(data.getTomboAntigo())));
@@ -87,7 +87,7 @@ public class PDFGenerationService {
     private void addTable(Document document, String assetNumber) {
         try {
             String token = authService.login("gabriellinke@alunos.utfpr.edu.br", "gabriel12");
-            EspelhoPatrimonioResponse response = espelhoPatrimonioService.getEspelhoPatrimonio(token, removeLeadingZeros(assetNumber));
+            EspelhoPatrimonioResponseDto response = espelhoPatrimonioService.getEspelhoPatrimonio(token, removeLeadingZeros(assetNumber));
 
             Table table = createTableAndAddHeader();
             addDataToTable(table, response);

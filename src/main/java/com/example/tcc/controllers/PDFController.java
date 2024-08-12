@@ -1,6 +1,6 @@
 package com.example.tcc.controllers;
 
-import com.example.tcc.models.PDFRequest;
+import com.example.tcc.dto.PDFRequestDto;
 import com.example.tcc.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -12,7 +12,7 @@ public class PDFController {
     private PDFGenerationService pdfGenerationService;
 
     @PostMapping
-    public void generate(@RequestBody PDFRequest requestDto) {
+    public void generate(@RequestBody PDFRequestDto requestDto) {
         pdfGenerationService.saveFile(requestDto.getAssetNumber(), requestDto.getPath());
     }
 }

@@ -32,6 +32,13 @@ public class FileModel {
         this.consolidatedAt = consolidatedAt;
     }
 
+    public FileModel(Long userId) {
+        this.userId = userId;
+        this.filename = "";
+        this.consolidated = false;
+        this.consolidatedAt = null;
+    }
+
     public Long getId() {
         return id;
     }

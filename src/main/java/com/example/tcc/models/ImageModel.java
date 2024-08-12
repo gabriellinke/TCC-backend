@@ -23,6 +23,11 @@ public class ImageModel {
         this.filename = filename;
     }
 
+    public ImageModel(String filename) {
+        this.asset = null;
+        this.filename = filename;
+    }
+
     public Long getId() {
         return id;
     }

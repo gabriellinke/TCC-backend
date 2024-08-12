@@ -1,7 +1,7 @@
 package com.example.tcc.services;
 
-import com.example.tcc.models.AuthRequest;
-import com.example.tcc.models.AuthResponse;
+import com.example.tcc.dto.AuthRequestDto;
+import com.example.tcc.dto.AuthResponseDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -20,11 +20,11 @@ public class AuthService {
     public String login(String email, String password) {
         String url = this.baseURL+"/auth/login";
 
-        AuthRequest authRequest = new AuthRequest();
-        authRequest.setEmail(email);
-        authRequest.setPassword(password);
+        AuthRequestDto authRequestDto = new AuthRequestDto();
+        authRequestDto.setEmail(email);
+        authRequestDto.setPassword(password);
 
-        ResponseEntity<AuthResponse> response = restTemplate.postForEntity(url, authRequest, AuthResponse.class);
+        ResponseEntity<AuthResponseDto> response = restTemplate.postForEntity(url, authRequestDto, AuthResponseDto.class);
         return response.getBody().getToken();
     }
 }

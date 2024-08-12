@@ -1,6 +1,6 @@
-package com.example.tcc.models;
+package com.example.tcc.dto;
 
-public class PDFRequest {
+public class PDFRequestDto {
     private String assetNumber;
     private String path;
 

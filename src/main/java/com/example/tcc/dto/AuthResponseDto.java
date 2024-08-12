@@ -1,6 +1,6 @@
-package com.example.tcc.models;
+package com.example.tcc.dto;
 
-public class AuthResponse {
+public class AuthResponseDto {
     private String token;
 
     // Getters e Setters

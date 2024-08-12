@@ -9,41 +9,31 @@ public class AssetModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
-
-    @OneToOne
-    @JoinColumn(name = "main_image_id")
-    private ImageModel mainImage;
-
-    @Column(name = "asset_number", nullable = false)
+    @Column(name = "asset_number")
     private String assetNumber;
+
+    @Column(name = "main_image")
+    private String mainImage;
 
     @Column(name = "former_asset_number")
     private String formerAssetNumber;
 
-    @Column(nullable = false)
     private String description;
 
     @Column(name = "conservation_state")
     private String conservationState;
 
-    @Column(nullable = false)
     private String situation;
 
-    @Column(nullable = false)
     private String place;
 
-    @Column(nullable = false)
     private String responsible;
 
-    @Column(nullable = false)
     private Boolean consolidated;
 
     public AssetModel() {}
 
-    public AssetModel(Long userId, ImageModel mainImage, String assetNumber, String formerAssetNumber, String description, String conservationState, String situation, String place, String responsible, Boolean consolidated) {
-        this.userId = userId;
+    public AssetModel(String mainImage, String assetNumber, String formerAssetNumber, String description, String conservationState, String situation, String place, String responsible, Boolean consolidated) {
         this.mainImage = mainImage;
         this.assetNumber = assetNumber;
         this.formerAssetNumber = formerAssetNumber;
@@ -55,6 +45,18 @@ public class AssetModel {
         this.consolidated = consolidated;
     }
 
+    public AssetModel(String mainImage) {
+        this.mainImage = mainImage;
+        this.assetNumber = "";
+        this.formerAssetNumber = "";
+        this.description = "";
+        this.conservationState = "";
+        this.situation = "";
+        this.place = "";
+        this.responsible = "";
+        this.consolidated = false;
+    }
+
     public Long getId() {
         return id;
     }
@@ -63,19 +65,11 @@ public class AssetModel {
         this.id = id;
     }
 
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public ImageModel getMainImage() {
+    public String getMainImage() {
         return mainImage;
     }
 
-    public void setMainImage(ImageModel mainImage) {
+    public void setMainImage(String mainImage) {
         this.mainImage = mainImage;
     }
 

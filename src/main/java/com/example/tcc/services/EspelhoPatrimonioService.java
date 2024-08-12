@@ -1,6 +1,6 @@
 package com.example.tcc.services;
 
-import com.example.tcc.models.EspelhoPatrimonioResponse;
+import com.example.tcc.dto.EspelhoPatrimonioResponseDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -19,14 +19,14 @@ public class EspelhoPatrimonioService {
         this.restTemplate = new RestTemplate();
     }
 
-    public EspelhoPatrimonioResponse getEspelhoPatrimonio(String token, String assetNumber) {
+    public EspelhoPatrimonioResponseDto getEspelhoPatrimonio(String token, String assetNumber) {
         String url = this.baseURL+"/espelho-patrimonio/" + assetNumber;
 
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(token);
 
         HttpEntity<String> entity = new HttpEntity<>(headers);
-        ResponseEntity<EspelhoPatrimonioResponse> response = restTemplate.exchange(url, HttpMethod.GET, entity, EspelhoPatrimonioResponse.class);
+        ResponseEntity<EspelhoPatrimonioResponseDto> response = restTemplate.exchange(url, HttpMethod.GET, entity, EspelhoPatrimonioResponseDto.class);
 
         return response.getBody();
     }

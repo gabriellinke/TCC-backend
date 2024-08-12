@@ -1,6 +1,6 @@
-package com.example.tcc.models;
+package com.example.tcc.dto;
 
-public class EspelhoPatrimonioResponse {
+public class EspelhoPatrimonioResponseDto {
     private int id;
     private String tombo;
     private String tombo_antigo;

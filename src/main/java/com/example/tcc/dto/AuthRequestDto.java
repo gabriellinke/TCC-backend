@@ -1,6 +1,6 @@
-package com.example.tcc.models;
+package com.example.tcc.dto;
 
-public class AuthRequest {
+public class AuthRequestDto {
     private String email;
     private String password;
 

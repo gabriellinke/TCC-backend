@@ -35,7 +35,7 @@ public class ImageUploadService {
             File convertedFile = new File(filePath.toString());
             file.transferTo(convertedFile);
 
-            return filePath.toString();
+            return uniqueFilename;
         } catch (IOException e) {
             throw new RuntimeException("Erro no upload do arquivo", e);
         }
