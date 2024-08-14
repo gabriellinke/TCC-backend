@@ -1,7 +1,11 @@
 package com.example.tcc.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "Images")
 public class ImageModel {
@@ -28,27 +32,4 @@ public class ImageModel {
         this.filename = filename;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public AssetModel getAsset() {
-        return asset;
-    }
-
-    public void setAsset(AssetModel asset) {
-        this.asset = asset;
-    }
-
-    public String getFilename() {
-        return filename;
-    }
-
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
 }

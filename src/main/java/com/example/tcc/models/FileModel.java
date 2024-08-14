@@ -1,9 +1,13 @@
 package com.example.tcc.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "Files")
 public class FileModel {
@@ -39,43 +43,4 @@ public class FileModel {
         this.consolidatedAt = null;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Long getUserId() {
-        return userId;
-    }
-
-    public void setUserId(Long userId) {
-        this.userId = userId;
-    }
-
-    public String getFilename() {
-        return filename;
-    }
-
-    public void setFilename(String filename) {
-        this.filename = filename;
-    }
-
-    public Boolean getConsolidated() {
-        return consolidated;
-    }
-
-    public void setConsolidated(Boolean consolidated) {
-        this.consolidated = consolidated;
-    }
-
-    public LocalDateTime getConsolidatedAt() {
-        return consolidatedAt;
-    }
-
-    public void setConsolidatedAt(LocalDateTime consolidatedAt) {
-        this.consolidatedAt = consolidatedAt;
-    }
 }

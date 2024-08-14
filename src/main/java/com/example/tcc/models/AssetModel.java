@@ -1,7 +1,11 @@
 package com.example.tcc.models;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
 @Table(name = "Assets")
 public class AssetModel {
@@ -57,83 +61,4 @@ public class AssetModel {
         this.consolidated = false;
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getMainImage() {
-        return mainImage;
-    }
-
-    public void setMainImage(String mainImage) {
-        this.mainImage = mainImage;
-    }
-
-    public String getAssetNumber() {
-        return assetNumber;
-    }
-
-    public void setAssetNumber(String assetNumber) {
-        this.assetNumber = assetNumber;
-    }
-
-    public String getFormerAssetNumber() {
-        return formerAssetNumber;
-    }
-
-    public void setFormerAssetNumber(String formerAssetNumber) {
-        this.formerAssetNumber = formerAssetNumber;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getConservationState() {
-        return conservationState;
-    }
-
-    public void setConservationState(String conservationState) {
-        this.conservationState = conservationState;
-    }
-
-    public String getSituation() {
-        return situation;
-    }
-
-    public void setSituation(String situation) {
-        this.situation = situation;
-    }
-
-    public String getPlace() {
-        return place;
-    }
-
-    public void setPlace(String place) {
-        this.place = place;
-    }
-
-    public String getResponsible() {
-        return responsible;
-    }
-
-    public void setResponsible(String responsible) {
-        this.responsible = responsible;
-    }
-
-    public Boolean getConsolidated() {
-        return consolidated;
-    }
-
-    public void setConsolidated(Boolean consolidated) {
-        this.consolidated = consolidated;
-    }
 }

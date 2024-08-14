@@ -1,8 +1,15 @@
 package com.example.tcc.models;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 @Table(name = "FilesAssets")
 public class FileAssetModel {
     @Id
@@ -17,34 +24,8 @@ public class FileAssetModel {
     @JoinColumn(name = "asset_id", nullable = false)
     private AssetModel asset;
 
-    public FileAssetModel() {}
-
     public FileAssetModel(FileModel file, AssetModel asset) {
         this.file = file;
-        this.asset = asset;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public FileModel getFile() {
-        return file;
-    }
-
-    public void setFile(FileModel file) {
-        this.file = file;
-    }
-
-    public AssetModel getAsset() {
-        return asset;
-    }
-
-    public void setAsset(AssetModel asset) {
         this.asset = asset;
     }
 }
