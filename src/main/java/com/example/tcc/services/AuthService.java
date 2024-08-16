@@ -17,14 +17,12 @@ public class AuthService {
         this.restTemplate = new RestTemplate();
     }
 
-    public String login(String email, String password) {
+    public AuthResponseDto login(String email, String password) {
         String url = this.baseURL+"/auth/login";
 
-        AuthRequestDto authRequestDto = new AuthRequestDto();
-        authRequestDto.setEmail(email);
-        authRequestDto.setPassword(password);
+        AuthRequestDto authRequestDto = new AuthRequestDto(email, password);
 
         ResponseEntity<AuthResponseDto> response = restTemplate.postForEntity(url, authRequestDto, AuthResponseDto.class);
-        return response.getBody().getToken();
+        return response.getBody();
     }
 }

@@ -1,14 +1,11 @@
 package com.example.tcc.dto;
 
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
 public class AuthResponseDto {
     private String token;
-
-    // Getters e Setters
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
+    private Long expiresIn;
 }

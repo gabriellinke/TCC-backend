@@ -85,7 +85,7 @@ public class PDFGenerationService {
 
 
     private void addTable(Document document, String assetNumber) {
-        try {
+        /*try {
             String token = authService.login("gabriellinke@alunos.utfpr.edu.br", "gabriel12");
             EspelhoPatrimonioResponseDto response = espelhoPatrimonioService.getEspelhoPatrimonio(token, removeLeadingZeros(assetNumber));
 
@@ -95,7 +95,7 @@ public class PDFGenerationService {
             document.add(table);
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }*/
     }
 
     public String save(String directory, String assetNumber, String imagePath) {
