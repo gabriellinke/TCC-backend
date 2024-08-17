@@ -4,6 +4,7 @@ import com.example.tcc.dto.CreateAssetResponseDto;
 import com.example.tcc.services.AssetCreationService;
 import com.example.tcc.services.AssetDeletionService;
 import com.example.tcc.services.AssetImageAdditionService;
+import com.example.tcc.services.AssetImageDeletionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,6 +22,8 @@ public class AssetController {
     private AssetDeletionService assetDeletionService;
     @Autowired
     private AssetImageAdditionService assetImageAdditionService;
+    @Autowired
+    private AssetImageDeletionService assetImageDeletionService;
 
     @PostMapping
     public ResponseEntity<CreateAssetResponseDto> create(@RequestParam Long fileId, @RequestParam MultipartFile image) {
@@ -34,6 +37,12 @@ public class AssetController {
         Map<String, String> response = new HashMap<>();
         response.put("path", filepath);
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/delete-image/{filename}")
+    public ResponseEntity<Void> deleteImage(@PathVariable String filename) {
+        assetImageDeletionService.delete(filename);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{assetId}")

@@ -17,7 +17,7 @@ public class ImageModel {
     @JoinColumn(name = "asset_id")
     private AssetModel asset;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String filename;
 
     public ImageModel() {}

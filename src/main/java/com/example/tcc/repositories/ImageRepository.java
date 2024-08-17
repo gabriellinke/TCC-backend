@@ -17,4 +17,6 @@ public interface ImageRepository extends CrudRepository<ImageModel, Long> {
     @Modifying
     @Query(value = "DELETE FROM Images WHERE asset_id = :assetId", nativeQuery = true)
     void deleteByAssetId(@Param("assetId") Long assetId);
+
+    List<ImageModel> findByFilename(String filename);
 }
