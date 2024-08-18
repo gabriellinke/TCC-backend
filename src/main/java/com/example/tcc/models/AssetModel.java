@@ -33,11 +33,9 @@ public class AssetModel {
 
     private String responsible;
 
-    private Boolean consolidated;
-
     public AssetModel() {}
 
-    public AssetModel(String mainImage, String assetNumber, String formerAssetNumber, String description, String conservationState, String situation, String place, String responsible, Boolean consolidated) {
+    public AssetModel(String mainImage, String assetNumber, String formerAssetNumber, String description, String conservationState, String situation, String place, String responsible) {
         this.mainImage = mainImage;
         this.assetNumber = assetNumber;
         this.formerAssetNumber = formerAssetNumber;
@@ -46,7 +44,6 @@ public class AssetModel {
         this.situation = situation;
         this.place = place;
         this.responsible = responsible;
-        this.consolidated = consolidated;
     }
 
     public AssetModel(String mainImage) {
@@ -58,7 +55,6 @@ public class AssetModel {
         this.situation = "";
         this.place = "";
         this.responsible = "";
-        this.consolidated = false;
     }
 
 }

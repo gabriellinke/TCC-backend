@@ -1,6 +1,6 @@
 package com.example.tcc.services;
 
-import com.example.tcc.responses.EspelhoPatrimonioResponseDto;
+import com.example.tcc.responses.AssetInfoResponseDto;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -27,7 +27,7 @@ public class PDFGenerationService {
     @Autowired
     private AuthService authService;
     @Autowired
-    private EspelhoPatrimonioService espelhoPatrimonioService;
+    private AssetInfoService assetInfoService;
 
     private static String removeLeadingZeros(String numberStr) {
         if (numberStr == null || numberStr.isEmpty()) {
@@ -72,7 +72,7 @@ public class PDFGenerationService {
         return table;
     }
 
-    private void addDataToTable(Table table, EspelhoPatrimonioResponseDto data) {
+    private void addDataToTable(Table table, AssetInfoResponseDto data) {
             // Adicionar dados à tabela
             table.addCell(new Cell().add(new Paragraph(data.getTombo())));
             table.addCell(new Cell().add(new Paragraph(data.getTomboAntigo())));
