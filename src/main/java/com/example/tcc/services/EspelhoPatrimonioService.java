@@ -1,6 +1,6 @@
 package com.example.tcc.services;
 
-import com.example.tcc.dto.EspelhoPatrimonioResponseDto;
+import com.example.tcc.responses.EspelhoPatrimonioResponseDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;

@@ -1,6 +1,6 @@
 package com.example.tcc.controllers;
 
-import com.example.tcc.dto.CreateFileResponseDto;
+import com.example.tcc.responses.CreateFileResponseDto;
 import com.example.tcc.models.FileModel;
 import com.example.tcc.services.FileCreationService;
 import org.springframework.beans.factory.annotation.Autowired;

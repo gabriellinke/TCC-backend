@@ -1,7 +1,7 @@
 package com.example.tcc.controllers;
 
-import com.example.tcc.dto.AuthRequestDto;
-import com.example.tcc.dto.AuthResponseDto;
+import com.example.tcc.requests.AuthRequestDto;
+import com.example.tcc.responses.AuthResponseDto;
 import com.example.tcc.services.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

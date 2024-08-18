@@ -1,6 +1,6 @@
 package com.example.tcc.controllers;
 
-import com.example.tcc.dto.CreateAssetResponseDto;
+import com.example.tcc.responses.CreateAssetResponseDto;
 import com.example.tcc.services.AssetCreationService;
 import com.example.tcc.services.AssetDeletionService;
 import com.example.tcc.services.AssetImageAdditionService;

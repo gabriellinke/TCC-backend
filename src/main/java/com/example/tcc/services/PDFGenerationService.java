@@ -1,6 +1,6 @@
 package com.example.tcc.services;
 
-import com.example.tcc.dto.EspelhoPatrimonioResponseDto;
+import com.example.tcc.responses.EspelhoPatrimonioResponseDto;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;

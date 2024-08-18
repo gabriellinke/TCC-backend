@@ -14,7 +14,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @RequestMapping("/image")
@@ -41,7 +40,7 @@ public class ImageController {
         BufferedImage bufferedImage = barcodeDetectionService.detectBarcode(path);
         String assetNumber = getAssetNumber(bufferedImage);
 
-        if(assetNumber != null && !Objects.equals(assetNumber, "")) {
+        if(assetNumber != null && !assetNumber.isBlank()) {
             imageLabelingService.drawString(path, assetNumber);
             String imagePath = baseURL + "image/" + path.substring(path.lastIndexOf('/') + 1);
 
@@ -59,13 +58,13 @@ public class ImageController {
     @GetMapping("/{filename}")
     public ResponseEntity<Resource> upload(@PathVariable String filename) {
         Resource image = imageRetrieveService.retrieveImage(filename);
-        if (image.exists() || image.isReadable()) {
+        if (image != null && (image.exists() || image.isReadable())) {
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + image.getFilename() + "\"")
                     .contentType(MediaType.IMAGE_JPEG)
                     .body(image);
         }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 
     private String getAssetNumber(BufferedImage bufferedImage) {

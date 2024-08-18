@@ -1,22 +1,14 @@
 package com.example.tcc.services;
 
-import com.example.tcc.dto.AssetNumberRecognitionDto;
-import com.example.tcc.dto.CreateAssetResponseDto;
 import com.example.tcc.models.AssetModel;
-import com.example.tcc.models.FileAssetModel;
-import com.example.tcc.models.FileModel;
 import com.example.tcc.models.ImageModel;
 import com.example.tcc.repositories.AssetRepository;
-import com.example.tcc.repositories.FileAssetRepository;
-import com.example.tcc.repositories.FileRepository;
 import com.example.tcc.repositories.ImageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.awt.image.BufferedImage;
-import java.nio.file.Paths;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 

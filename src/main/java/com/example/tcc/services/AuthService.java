@@ -1,7 +1,7 @@
 package com.example.tcc.services;
 
-import com.example.tcc.dto.AuthRequestDto;
-import com.example.tcc.dto.AuthResponseDto;
+import com.example.tcc.requests.AuthRequestDto;
+import com.example.tcc.responses.AuthResponseDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;

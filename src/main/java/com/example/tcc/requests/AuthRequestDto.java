@@ -1,4 +1,4 @@
-package com.example.tcc.dto;
+package com.example.tcc.requests;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

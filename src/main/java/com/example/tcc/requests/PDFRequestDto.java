@@ -1,4 +1,4 @@
-package com.example.tcc.dto;
+package com.example.tcc.requests;
 
 public class PDFRequestDto {
     private String assetNumber;

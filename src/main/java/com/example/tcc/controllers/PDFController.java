@@ -1,6 +1,6 @@
 package com.example.tcc.controllers;
 
-import com.example.tcc.dto.PDFRequestDto;
+import com.example.tcc.requests.PDFRequestDto;
 import com.example.tcc.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

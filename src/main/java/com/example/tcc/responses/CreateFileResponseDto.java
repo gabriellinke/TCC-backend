@@ -1,4 +1,4 @@
-package com.example.tcc.dto;
+package com.example.tcc.responses;
 
 public class CreateFileResponseDto {
     private Long id;

@@ -1,7 +1,7 @@
 package com.example.tcc.services;
 
 import com.example.tcc.dto.AssetNumberRecognitionDto;
-import com.example.tcc.dto.CreateAssetResponseDto;
+import com.example.tcc.responses.CreateAssetResponseDto;
 import com.example.tcc.models.AssetModel;
 import com.example.tcc.models.FileAssetModel;
 import com.example.tcc.models.FileModel;
