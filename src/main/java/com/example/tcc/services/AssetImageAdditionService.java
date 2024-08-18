@@ -23,8 +23,6 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class AssetImageAdditionService {
-    @Value("${tcc.disk.images-directory}")
-    private String imageDirectory;
     @Value("${tcc.backend.base-url}")
     private String baseURL;
     private final AssetRepository assetRepository;
@@ -34,7 +32,7 @@ public class AssetImageAdditionService {
     // TODO: Excluir imagem do filesystem caso ocorra algum erro após ela ter sido salva
     public String add(Long assetId, MultipartFile image) {
         String filename = imageUploadService.saveImage(image);
-        String path = Paths.get(imageDirectory).toAbsolutePath().normalize().resolve(filename).toString();
+        String path = baseURL + "image/" + filename;
 
         Optional<AssetModel> asset = assetRepository.findById(assetId);
 
