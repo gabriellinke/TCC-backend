@@ -1,29 +1,29 @@
 package com.example.tcc.controllers;
 
 import com.example.tcc.dto.AssetDetailsDto;
-import com.example.tcc.models.ImageModel;
-import com.example.tcc.repositories.AssetRepository;
-import com.example.tcc.repositories.ImageRepository;
 import com.example.tcc.responses.CreateFileResponseDto;
 import com.example.tcc.models.FileModel;
 import com.example.tcc.services.AssetDetailsService;
+import com.example.tcc.services.FileConfirmationService;
 import com.example.tcc.services.FileCreationService;
+import com.example.tcc.services.ImageLabelingService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/file")
 @AllArgsConstructor
 public class FileController {
     private final FileCreationService fileCreationService;
+    private final FileConfirmationService fileConfirmationService;
     private final AssetDetailsService assetDetailsService;
 
     @PostMapping
@@ -38,5 +38,20 @@ public class FileController {
     public ResponseEntity<List<AssetDetailsDto>> get(@PathVariable Long fileId) {
         List<AssetDetailsDto> response = assetDetailsService.getAssetsWithURL(fileId);
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{fileId}/confirm")
+    public ResponseEntity<FileModel> confirm(@PathVariable Long fileId) {
+        try {
+            FileModel file = fileConfirmationService.confirm(fileId);
+            return ResponseEntity.ok(file);
+        } catch (Error | IOException e) {
+            if(Objects.equals(e.getMessage(), "Invalid assets")) {
+                return ResponseEntity.internalServerError().build();
+            } else if(Objects.equals(e.getMessage(), "File not found")) {
+                return ResponseEntity.notFound().build();
+            }
+            return ResponseEntity.internalServerError().build();
+        }
     }
 }
