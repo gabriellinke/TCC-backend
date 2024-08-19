@@ -14,6 +14,9 @@ public interface ImageRepository extends CrudRepository<ImageModel, Long> {
     @Query(value = "SELECT filename FROM Images WHERE asset_id = :assetId", nativeQuery = true)
     List<String> findFilenamesByAssetId(@Param("assetId") Long assetId);
 
+    @Query("SELECT i FROM ImageModel i WHERE i.asset.id IN :assetIds")
+    List<ImageModel> findFilenamesByAssetIds(@Param("assetIds") List<Long> assetIds);
+
     @Modifying
     @Query(value = "DELETE FROM Images WHERE asset_id = :assetId", nativeQuery = true)
     void deleteByAssetId(@Param("assetId") Long assetId);
