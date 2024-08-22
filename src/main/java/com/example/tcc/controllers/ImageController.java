@@ -1,6 +1,8 @@
 package com.example.tcc.controllers;
 
 import com.example.tcc.services.*;
+import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
@@ -17,23 +19,19 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/image")
+@RequiredArgsConstructor
 public class ImageController {
-    @Autowired
-    private ImageUploadService imageUploadService;
-    @Autowired
-    private ImageRetrieveService imageRetrieveService;
-    @Autowired
-    private BarcodeReaderService barcodeReaderService;
-    @Autowired
-    private BarcodeDetectionService barcodeDetectionService;
-    @Autowired
-    private OCRService ocrService;
-    @Autowired
-    private ImageLabelingService imageLabelingService;
+    private final ImageUploadService imageUploadService;
+    private final ImageRetrieveService imageRetrieveService;
+    private final BarcodeReaderService barcodeReaderService;
+    private final BarcodeDetectionService barcodeDetectionService;
+    private final OCRService ocrService;
+    private final ImageLabelingService imageLabelingService;
 
     @Value("${tcc.backend.base-url}")
     private String baseURL;
 
+    // TODO: Remover rotas
     @PostMapping("/upload")
     public ResponseEntity<Map<String, String>> upload(@RequestParam MultipartFile image) {
         String path = imageUploadService.saveImage(image);

@@ -73,7 +73,7 @@ public class AssetConfirmationService {
     // TODO: Retornar erro de acordo com qual validação falhou
     public void confirm(String token, String assetNumber, Long assetId) {
         try {
-            Optional<FileAssetModel> fileAsset = fileAssetRepository.findFileIdByAssetId(assetId);
+            Optional<FileAssetModel> fileAsset = fileAssetRepository.findByAssetId(assetId);
 
             if (fileAsset.isEmpty()) {
                 throw new NoSuchElementException("Asset ID não associado a nenhum arquivo");

@@ -15,6 +15,6 @@ public interface FileAssetRepository extends CrudRepository<FileAssetModel, Long
     @Query(value = "DELETE FROM files_assets WHERE asset_id = :assetId", nativeQuery = true)
     void deleteByAssetId(@Param("assetId") Long assetId);
 
-    @Query(value = "SELECT * FROM files_assets fa WHERE fa.asset_id = :assetId", nativeQuery = true)
-    Optional<FileAssetModel> findFileIdByAssetId(@Param("assetId") Long assetId);
+    Optional<FileAssetModel> findByAssetId(Long assetId);
+
 }
