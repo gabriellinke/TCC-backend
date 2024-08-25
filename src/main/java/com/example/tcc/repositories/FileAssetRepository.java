@@ -7,6 +7,7 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -16,5 +17,5 @@ public interface FileAssetRepository extends CrudRepository<FileAssetModel, Long
     void deleteByAssetId(@Param("assetId") Long assetId);
 
     Optional<FileAssetModel> findByAssetId(Long assetId);
-
+    List<FileAssetModel> findByFileId(Long fileId);
 }

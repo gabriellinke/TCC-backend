@@ -19,7 +19,6 @@ public class AssetInfoService {
         this.restTemplate = new RestTemplate();
     }
 
-    // TODO: Lidar com diferentes erros na requisição (not found, unauthorized)
     public AssetInfoResponseDto getAssetInfo(String token, String assetNumber) {
         String url = this.baseURL+"/espelho-patrimonio/" + assetNumber;
 

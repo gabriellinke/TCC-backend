@@ -1,5 +1,6 @@
 package com.example.tcc.services;
 
+import com.example.tcc.dto.AssetDetailsDto;
 import com.example.tcc.dto.AssetNumberRecognitionDto;
 import com.example.tcc.responses.CreateAssetResponseDto;
 import com.example.tcc.models.AssetModel;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.image.BufferedImage;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -31,22 +33,32 @@ public class AssetCreationService {
     private final ImageUploadService imageUploadService;
     private final BarcodeDetectionService barcodeDetectionService;
     private final AssetNumberService assetNumberService;
+    private final AssetDetailsService assetDetailsService;
 
-    // TODO: Excluir imagem do filesystem caso ocorra algum erro após ela ter sido salva
-    public CreateAssetResponseDto createAndRecognize(Long fileId, MultipartFile image) {
-        String filename = imageUploadService.saveImage(image);
-        String path = Paths.get(imageDirectory).toAbsolutePath().normalize().resolve(filename).toString();
-        BufferedImage bufferedImage = barcodeDetectionService.detectBarcode(path);
-        AssetNumberRecognitionDto assetInfo = assetNumberService.getAssetNumberAndConfidenceLevel(bufferedImage);
+    private Boolean areAssetsValid(List<AssetDetailsDto> assets) {
+        for (AssetDetailsDto asset : assets) {
+            if(asset.getAssetNumber().isBlank() || asset.getMainImage().isBlank() || asset.getImages().size() < 2) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-        AssetModel asset = assetRepository.save(new AssetModel(filename));
+    public CreateAssetResponseDto createAndRecognize(Long fileId, MultipartFile image) throws Exception {
         Optional<FileModel> file = fileRepository.findById(fileId);
-
         if (file.isPresent()) {
-            FileAssetModel fileAsset = fileAssetRepository.save(new FileAssetModel(file.get(), asset));
+            List<AssetDetailsDto> assets = assetDetailsService.getAssets(fileId);
+            if(!assets.isEmpty() && !areAssetsValid(assets)) { throw new Exception("Complete assets before adding a new one"); }
+
+            String filename = imageUploadService.saveImage(image);
+            String path = Paths.get(imageDirectory).toAbsolutePath().normalize().resolve(filename).toString();
+            BufferedImage bufferedImage = barcodeDetectionService.detectBarcode(path);
+            AssetNumberRecognitionDto assetInfo = assetNumberService.getAssetNumberAndConfidenceLevel(bufferedImage);
+
+            AssetModel asset = assetRepository.save(new AssetModel(filename));
+            fileAssetRepository.save(new FileAssetModel(file.get(), asset));
             return new CreateAssetResponseDto(fileId, asset.getId(), baseURL+"image/"+filename, assetInfo.getAssetNumber(), assetInfo.getConfidenceLevel());
         } else {
-            // Tratar o caso onde o FileModel não existe, por exemplo:
             throw new NoSuchElementException("File with id " + fileId + " not found");
         }
     }

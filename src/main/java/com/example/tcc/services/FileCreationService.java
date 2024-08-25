@@ -1,18 +1,10 @@
 package com.example.tcc.services;
 
 import com.example.tcc.models.FileModel;
-import com.example.tcc.models.ImageModel;
 import com.example.tcc.repositories.FileRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.UUID;
+import java.util.List;
 
 @Service
 public class FileCreationService {
@@ -24,5 +16,11 @@ public class FileCreationService {
 
     public FileModel create(Long userId) {
         return fileRepository.save(new FileModel(userId));
+    }
+
+    public Boolean canCreateFile(Long userId) {
+        List<FileModel> userFiles = fileRepository.findByUserId(userId);
+        List<FileModel> notConsolidatedFiles = userFiles.stream().filter(file -> !file.getConsolidated()).toList();
+        return notConsolidatedFiles.isEmpty();
     }
 }

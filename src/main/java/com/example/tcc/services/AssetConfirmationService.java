@@ -5,26 +5,10 @@ import com.example.tcc.models.FileAssetModel;
 import com.example.tcc.repositories.AssetRepository;
 import com.example.tcc.repositories.FileAssetRepository;
 import com.example.tcc.responses.AssetInfoResponseDto;
-import com.example.tcc.responses.CreateAssetResponseDto;
-import com.itextpdf.io.image.ImageData;
-import com.itextpdf.io.image.ImageDataFactory;
-import com.itextpdf.kernel.pdf.PdfDocument;
-import com.itextpdf.kernel.pdf.PdfWriter;
-import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.Cell;
-import com.itextpdf.layout.element.Image;
-import com.itextpdf.layout.element.Paragraph;
-import com.itextpdf.layout.element.Table;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -59,6 +43,16 @@ public class AssetConfirmationService {
         return true; // Todos os assets têm o mesmo responsável
     }
 
+    private Boolean isAssetNumberAlreadyInTheFile(AssetInfoResponseDto assetInfo, Long fileId) {
+        List<FileAssetModel> fileAssetModelList = fileAssetRepository.findByFileId(fileId);
+        if(fileAssetModelList.isEmpty()) return false;
+        for(FileAssetModel fileAssetModel : fileAssetModelList) {
+            if(Objects.equals(fileAssetModel.getAsset().getAssetNumber(), assetInfo.getTombo()))
+                return true;
+        }
+        return false;
+    }
+
     private void updateAsset(AssetModel asset, AssetInfoResponseDto assetInfo) {
         asset.setAssetNumber(assetInfo.getTombo());
         asset.setFormerAssetNumber(assetInfo.getTomboAntigo());
@@ -70,26 +64,27 @@ public class AssetConfirmationService {
         assetRepository.save(asset);
     }
 
-    // TODO: Retornar erro de acordo com qual validação falhou
-    public void confirm(String token, String assetNumber, Long assetId) {
-        try {
-            Optional<FileAssetModel> fileAsset = fileAssetRepository.findByAssetId(assetId);
+    public void confirm(String token, String assetNumber, Long assetId) throws Exception {
+        Optional<FileAssetModel> fileAsset = fileAssetRepository.findByAssetId(assetId);
 
-            if (fileAsset.isEmpty()) {
-                throw new NoSuchElementException("Asset ID não associado a nenhum arquivo");
-            }
-            Long fileId = fileAsset.get().getFile().getId();
-
-            AssetInfoResponseDto assetInfo = assetInfoService.getAssetInfo(token, removeLeadingZeros(assetNumber));
-            if(assetInfo == null || !isAssetConditionValid(assetInfo) || !isOnlyOneResponsible(assetInfo, fileId)) {
-                assetDeletionService.delete(assetId);
-                return;
-            }
-
-            AssetModel asset = fileAsset.get().getAsset();
-            updateAsset(asset, assetInfo);
-        } catch (Exception e) {
-            e.printStackTrace();
+        if (fileAsset.isEmpty()) {
+            throw new Exception("Asset ID não associado a nenhum arquivo");
         }
+        Long fileId = fileAsset.get().getFile().getId();
+
+        AssetInfoResponseDto assetInfo = assetInfoService.getAssetInfo(token, removeLeadingZeros(assetNumber));
+
+        if(assetInfo == null) {
+            throw new Exception("Não foi possível encontrar bem com esse número de patrimônio");
+        } else if(!isAssetConditionValid(assetInfo)) {
+            throw new Exception("Estado de conservação ou situação inválidos");
+        } else if(!isOnlyOneResponsible(assetInfo, fileId)) {
+            throw new Exception("Arquivo contém mais de um responsável pelos bens");
+        } else if(isAssetNumberAlreadyInTheFile(assetInfo, fileId)) {
+            throw new Exception("Arquivo já contém esse bem");
+        }
+
+        AssetModel asset = fileAsset.get().getAsset();
+        updateAsset(asset, assetInfo);
     }
 }
