@@ -5,7 +5,10 @@ import com.example.tcc.responses.CreateFileResponseDto;
 import com.example.tcc.models.FileModel;
 import com.example.tcc.services.*;
 import lombok.AllArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,6 +26,8 @@ public class FileController {
     private final FileConfirmationService fileConfirmationService;
     private final AssetDetailsService assetDetailsService;
     private final PermissionCheckService permissionCheckService;
+    private final FileRetrieveService fileRetrieveService;
+    private final FileByUserRetrieveService fileByUserRetrieveService;
 
     @PostMapping
     public ResponseEntity<?> create() {
@@ -62,5 +67,30 @@ public class FileController {
             }
             return ResponseEntity.internalServerError().build();
         }
+    }
+
+    @GetMapping
+    public ResponseEntity<?> get() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = (Long) authentication.getPrincipal();
+
+        try {
+            List<FileModel> response = fileByUserRetrieveService.retrieve(userId);
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{filename}")
+    public ResponseEntity<Resource> retrieve(@PathVariable String filename) {
+        Resource file = fileRetrieveService.retrieveFile(filename);
+        if (file != null && (file.exists() || file.isReadable())) {
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getFilename() + "\"")
+                    .contentType(MediaType.APPLICATION_PDF)
+                    .body(file);
+        }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 }

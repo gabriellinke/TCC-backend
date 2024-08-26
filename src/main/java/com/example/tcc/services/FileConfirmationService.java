@@ -4,8 +4,11 @@ import com.example.tcc.dto.AssetDetailsDto;
 import com.example.tcc.models.FileModel;
 import com.example.tcc.repositories.FileRepository;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -13,8 +16,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class FileConfirmationService {
+    @Value("${tcc.backend.base-url}")
+    private String baseURL;
     private final AssetDetailsService assetDetailsService;
     private final ImageLabelingService imageLabelingService;
     private final FileGenerationService fileGenerationService;
@@ -41,11 +46,13 @@ public class FileConfirmationService {
         return true;
     }
 
-    private FileModel updateFIleOnDatabase(FileModel updatedFile, String filename) {
+    private FileModel updateFileOnDatabase(FileModel updatedFile, String filename) {
         updatedFile.setFilename(filename);
         updatedFile.setConsolidated(true);
         updatedFile.setConsolidatedAt(LocalDateTime.now());
-        return fileRepository.save(updatedFile);
+        FileModel response = fileRepository.save(updatedFile);
+        response.setFilename(baseURL+ "file/" +filename);
+        return response;
     }
 
     public FileModel confirm(Long fileId) throws Error, IOException {
@@ -57,7 +64,7 @@ public class FileConfirmationService {
             labelAllImages(assets);
 
             String filename = fileGenerationService.saveFile(assets);
-            return updateFIleOnDatabase(file.get(), filename);
+            return updateFileOnDatabase(file.get(), filename);
         }
         throw new Error("File not found");
     }

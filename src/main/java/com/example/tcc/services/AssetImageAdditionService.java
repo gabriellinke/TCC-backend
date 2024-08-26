@@ -21,7 +21,6 @@ public class AssetImageAdditionService {
     private final ImageRepository imageRepository;
     private final ImageUploadService imageUploadService;
 
-    // TODO: Excluir imagem do filesystem caso ocorra algum erro após ela ter sido salva
     public String add(Long assetId, MultipartFile image) {
         String filename = imageUploadService.saveImage(image);
         String path = baseURL + "image/" + filename;

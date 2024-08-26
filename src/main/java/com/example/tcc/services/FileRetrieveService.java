@@ -7,15 +7,16 @@ import org.springframework.stereotype.Service;
 import static com.example.tcc.util.GetResource.getResource;
 
 @Service
-public class ImageRetrieveService {
-    @Value("${tcc.disk.images-directory}")
-    private String imageDirectory;
+public class FileRetrieveService {
+    @Value("${tcc.disk.files-directory}")
+    private String fileRepository;
 
-    public Resource retrieveImage(String filename) {
-        return this.retrieve(this.imageDirectory, filename);
+    public Resource retrieveFile(String filename) {
+        return this.retrieve(this.fileRepository, filename);
     }
 
     public Resource retrieve(String directory, String filename) {
         return getResource(directory, filename);
     }
+
 }
