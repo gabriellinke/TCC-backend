@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Service
+// TODO: Remove
 public class AuthService {
     @Value("${tcc.patrimonio.base-url}")
     private String baseURL;

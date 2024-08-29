@@ -24,7 +24,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authorizationHeader = request.getHeader("Authorization");
 
         // Ignorar a rota /login
-        if (request.getServletPath().equals("/login")) {
+        if (request.getServletPath().equals("/auth/login") || request.getServletPath().equals("/auth/signup")) {
             filterChain.doFilter(request, response);
             return;
         }
