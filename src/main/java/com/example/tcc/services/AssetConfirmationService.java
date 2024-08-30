@@ -64,7 +64,7 @@ public class AssetConfirmationService {
         assetRepository.save(asset);
     }
 
-    public void confirm(String token, String assetNumber, Long assetId) throws Exception {
+    public void confirm(Long userId, String assetNumber, Long assetId) throws Exception {
         Optional<FileAssetModel> fileAsset = fileAssetRepository.findByAssetId(assetId);
 
         if (fileAsset.isEmpty()) {
@@ -72,7 +72,7 @@ public class AssetConfirmationService {
         }
         Long fileId = fileAsset.get().getFile().getId();
 
-        AssetInfoResponseDto assetInfo = assetInfoService.getAssetInfo(token, removeLeadingZeros(assetNumber));
+        AssetInfoResponseDto assetInfo = assetInfoService.getAssetInfo(userId, removeLeadingZeros(assetNumber));
 
         if(assetInfo == null) {
             throw new Exception("Não foi possível encontrar bem com esse número de patrimônio");

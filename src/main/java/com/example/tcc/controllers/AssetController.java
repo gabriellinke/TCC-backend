@@ -47,7 +47,7 @@ public class AssetController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 
         try {
-            assetConfirmationService.confirm(authentication.getCredentials().toString(), requestDto.getAssetNumber(), assetId);
+            assetConfirmationService.confirm((Long)authentication.getPrincipal(), requestDto.getAssetNumber(), assetId);
             return ResponseEntity.ok().build();
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {

@@ -29,6 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
+        // TODO: verificar assinatura do token
+
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             // Se o token não estiver presente ou não começar com "Bearer ", retorna 403 Forbidden
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
