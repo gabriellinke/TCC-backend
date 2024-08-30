@@ -1,8 +1,13 @@
 package com.example.tcc.configs;
 
+import com.example.tcc.services.JwtService;
+import lombok.RequiredArgsConstructor;
 import org.json.JSONObject;
 import org.springframework.lang.NonNull;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import jakarta.servlet.FilterChain;
@@ -15,7 +20,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 
 @Component
+@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+    private final JwtService jwtService;
+    private final UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -29,8 +37,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        // TODO: verificar assinatura do token
-
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
             // Se o token não estiver presente ou não começar com "Bearer ", retorna 403 Forbidden
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
@@ -38,12 +44,21 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             return;
         }
 
-        String token = authorizationHeader.substring(7);
-
         try {
-            Long userId = extractUserIdFromToken(token);
-            JwtAuthenticationToken authentication = new JwtAuthenticationToken(userId, token);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String token = authorizationHeader.substring(7);
+            final String userEmail = jwtService.extractUsername(token);
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+            if (userEmail != null && authentication == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+
+                if (jwtService.isTokenValid(token, userDetails)) {
+                    Long userId = extractUserIdFromToken(token);
+                    JwtAuthenticationToken jwtAuthentication = new JwtAuthenticationToken(userId, token);
+                    SecurityContextHolder.getContext().setAuthentication(jwtAuthentication);
+                }
+            }
         } catch (Exception e) {
             // Se ocorrer qualquer erro ao processar o token, retorna 403 Forbidden
             response.setStatus(HttpServletResponse.SC_FORBIDDEN);
