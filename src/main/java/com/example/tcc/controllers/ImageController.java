@@ -13,11 +13,10 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/image")
 @RequiredArgsConstructor
 public class ImageController {
-    private final PermissionCheckService permissionCheckService;
     private final ImageRetrieveService imageRetrieveService;
 
     @GetMapping("/{filename}")
-    public ResponseEntity<Resource> upload(@PathVariable String filename) {
+    public ResponseEntity<Resource> retrieve(@PathVariable String filename) {
         Resource image = imageRetrieveService.retrieveImage(filename);
         if (image != null && (image.exists() || image.isReadable())) {
             return ResponseEntity.ok()

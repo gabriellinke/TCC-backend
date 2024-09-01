@@ -27,6 +27,7 @@ public class SecurityConfiguration {
             .csrf().disable()
             .authorizeHttpRequests()
                 .requestMatchers("/auth/**").permitAll()
+                .requestMatchers(request -> request.getRequestURI().matches(".*\\.(jpg|pdf)$")).permitAll() // Permite arquivos .jpg e .pdf
                 .anyRequest().authenticated()
             .and()
             .sessionManagement()

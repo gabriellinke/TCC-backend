@@ -31,8 +31,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
         String authorizationHeader = request.getHeader("Authorization");
 
-        // Ignorar a rota /login
+        // Ignorar a rota /login e /signup
         if (request.getServletPath().equals("/auth/login") || request.getServletPath().equals("/auth/signup")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // Ignorar as rotas para os recursos
+        if (request.getServletPath().matches(".*\\.(jpg|pdf)$")) {
             filterChain.doFilter(request, response);
             return;
         }
