@@ -12,7 +12,7 @@ public interface AssetRepository extends CrudRepository<AssetModel, Long> {
 
     @Query(value="SELECT a.responsible FROM assets a " +
                 "JOIN files_assets fa ON " +
-                "a.id = fa.asset_id WHERE fa.file_id = 2", nativeQuery = true)
+                "a.id = fa.asset_id WHERE fa.file_id = :fileId", nativeQuery = true)
     List<String> findAssetResponsiblesByFileId(Long fileId);
 
     @Query("SELECT new com.example.tcc.dto.AssetDetailsDto( "+
