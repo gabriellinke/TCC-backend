@@ -19,10 +19,10 @@ public class AssetNumberService {
             return new AssetNumberRecognitionDto(barcode, "1.0");
         }
 
-        String number = ocrService.performOCR(bufferedImage);
-        System.out.println(number);
-        if(number != null && !Objects.equals(number, "")) {
-            return new AssetNumberRecognitionDto(number.split(",")[0].trim(), number.split(",")[1].trim());
+        AssetNumberRecognitionDto asset = ocrService.performOCR(bufferedImage);
+        if(asset != null) {
+            System.out.println(asset.getAssetNumber()+", "+asset.getConfidenceLevel());
+            return asset;
         }
 
         return new AssetNumberRecognitionDto("", "0.0");

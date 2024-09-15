@@ -1,75 +1,71 @@
 package com.example.tcc.services;
 
+import com.example.tcc.dto.AssetNumberRecognitionDto;
+import com.example.tcc.util.CustomMultipartFile;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.*;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.image.BufferedImage;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import javax.imageio.ImageIO;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import javax.imageio.ImageIO;
 
 @Service
 public class OCRService {
 
-    @Value("${python.path}")
-    private String pythonPath;
+    @Value("${ocr.server.url}")
+    private String ocrServerUrl;
 
-    @Value("${ocr.script.path}")
-    private String ocrScriptPath;
+    private final RestTemplate restTemplate;
 
-    @Value("${tcc.disk.images-directory}")
-    private String imageDirectory;
+    public OCRService() {
+        this.restTemplate = new RestTemplate();
+    }
 
-    public String performOCR(BufferedImage image) {
-        Path tempImagePath = null;
+    public AssetNumberRecognitionDto performOCR(BufferedImage image) {
         try {
-            // Save the BufferedImage to a temporary file
-            tempImagePath = Files.createTempFile(Paths.get(imageDirectory), "temp_image", ".jpg");
-            ImageIO.write(image, "jpg", tempImagePath.toFile());
+            // Convert BufferedImage to byte array
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(image, "png", baos);
+            byte[] imageBytes = baos.toByteArray();
 
-            // Build the command to call the Python script
-            ProcessBuilder processBuilder = new ProcessBuilder(
-                    pythonPath,
-                    ocrScriptPath,
-                    "-i", tempImagePath.toString()
+            // Create MultipartFile
+            MultipartFile file = new CustomMultipartFile("file", "image.jpg", "image/jpg", imageBytes);
+
+            // Create headers for multipart request
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+            MultiValueMap<String, Object> parts = new LinkedMultiValueMap<>();
+            parts.add("file", file.getResource());
+
+            HttpEntity<MultiValueMap<String, Object>> requestEntity =
+                    new HttpEntity<>(parts, headers);
+
+            ResponseEntity<AssetNumberRecognitionDto> response = restTemplate.exchange(
+                    ocrServerUrl + "/upload-image/",
+                    HttpMethod.POST,
+                    requestEntity,
+                    AssetNumberRecognitionDto.class
             );
 
-            // Start the process
-            Process process = processBuilder.start();
-
-            // Capture the output from the process
-            StringBuilder output = new StringBuilder();
-            try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    output.append(line).append("\n");
-                }
+            if (response.getStatusCode() == HttpStatus.OK) {
+                return response.getBody();
+            } else {
+                throw new RuntimeException("Failed to get a valid response from OCR server");
             }
 
-            // Wait for the process to complete and check the exit status
-            int exitCode = process.waitFor();
-            if (exitCode != 0) {
-                throw new RuntimeException("Python script execution failed with exit code: " + exitCode);
-            }
-
-            return output.toString().trim();
-
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             return null;
-        } finally {
-            // Clean up the temporary file
-            if (tempImagePath != null) {
-                try {
-                    Files.deleteIfExists(tempImagePath);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
         }
     }
 }
