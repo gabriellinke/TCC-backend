@@ -3,6 +3,7 @@ package com.example.tcc.controllers;
 import com.example.tcc.requests.AssetConfirmationRequestDto;
 import com.example.tcc.responses.CreateAssetResponseDto;
 import com.example.tcc.services.*;
+import com.example.tcc.util.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -30,13 +31,13 @@ public class AssetController {
     public ResponseEntity<?> create(@RequestParam Long fileId, @RequestParam MultipartFile image) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(!permissionCheckService.checkPermissionForFile((Long)authentication.getPrincipal(), fileId))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         try {
             CreateAssetResponseDto response = assetCreationService.createAndRecognize(fileId, image);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(e.getMessage()));
         }
     }
 
@@ -44,20 +45,20 @@ public class AssetController {
     public ResponseEntity<?> confirm(@PathVariable Long assetId, @RequestBody AssetConfirmationRequestDto requestDto) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(!permissionCheckService.checkPermissionForAsset((Long)authentication.getPrincipal(), assetId))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         try {
             assetConfirmationService.confirm((Long)authentication.getPrincipal(), requestDto.getAssetNumber(), assetId);
             return ResponseEntity.ok().build();
         } catch (HttpClientErrorException e) {
-            if (e.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
             } else if (e.getStatusCode() == HttpStatus.NOT_FOUND) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Não foi possível encontrar bem com esse número de patrimônio");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse("Não foi possível encontrar bem com esse número de patrimônio"));
             }
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(e.getMessage()));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(e.getMessage()));
         }
     }
 
@@ -65,7 +66,7 @@ public class AssetController {
     public ResponseEntity<Map<String, String>> add(@RequestParam Long assetId, @RequestParam MultipartFile image) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(!permissionCheckService.checkPermissionForAsset((Long)authentication.getPrincipal(), assetId))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         String filepath = assetImageAdditionService.add(assetId, image);
         Map<String, String> response = new HashMap<>();
@@ -77,7 +78,7 @@ public class AssetController {
     public ResponseEntity<Void> deleteImage(@PathVariable String filename) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(!permissionCheckService.checkPermissionForImageFilename((Long)authentication.getPrincipal(), filename))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         assetImageDeletionService.delete(filename);
         return ResponseEntity.noContent().build();
@@ -87,7 +88,7 @@ public class AssetController {
     public ResponseEntity<Void> deleteAsset(@PathVariable Long assetId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(!permissionCheckService.checkPermissionForAsset((Long)authentication.getPrincipal(), assetId))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         assetDeletionService.delete(assetId);
         return ResponseEntity.noContent().build();

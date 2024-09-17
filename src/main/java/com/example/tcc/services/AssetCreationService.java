@@ -48,7 +48,7 @@ public class AssetCreationService {
         Optional<FileModel> file = fileRepository.findById(fileId);
         if (file.isPresent()) {
             List<AssetDetailsDto> assets = assetDetailsService.getAssets(fileId);
-            if(!assets.isEmpty() && !areAssetsValid(assets)) { throw new Exception("Complete assets before adding a new one"); }
+            if(!assets.isEmpty() && !areAssetsValid(assets)) { throw new Exception("Arquivo contém um bem incompleto. Não foi possível adicionar novo bem"); }
 
             String filename = imageUploadService.saveImage(image);
             String path = Paths.get(imageDirectory).toAbsolutePath().normalize().resolve(filename).toString();
@@ -59,7 +59,7 @@ public class AssetCreationService {
             fileAssetRepository.save(new FileAssetModel(file.get(), asset));
             return new CreateAssetResponseDto(fileId, asset.getId(), baseURL+"image/"+filename, assetInfo.getAssetNumber(), assetInfo.getConfidenceLevel());
         } else {
-            throw new NoSuchElementException("File with id " + fileId + " not found");
+            throw new NoSuchElementException("Arquivo com id " + fileId + " não encontrado");
         }
     }
 }

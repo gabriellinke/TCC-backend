@@ -44,8 +44,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
-            // Se o token não estiver presente ou não começar com "Bearer ", retorna 403 Forbidden
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+            // Se o token não estiver presente ou não começar com "Bearer ", retorna 401 Unauthorized
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.getWriter().write("Forbidden: Token is missing or invalid.");
             return;
         }
@@ -66,9 +66,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            // Se ocorrer qualquer erro ao processar o token, retorna 403 Forbidden
-            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            response.getWriter().write("Forbidden: Token is invalid or cannot be processed.");
+            // Se ocorrer qualquer erro ao processar o token, retorna 401 Unauthorized
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.getWriter().write("Unauthorized: Token is invalid or cannot be processed.");
             return;
         }
 

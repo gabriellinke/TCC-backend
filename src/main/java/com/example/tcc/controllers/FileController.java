@@ -4,6 +4,7 @@ import com.example.tcc.dto.AssetDetailsDto;
 import com.example.tcc.responses.CreateFileResponseDto;
 import com.example.tcc.models.FileModel;
 import com.example.tcc.services.*;
+import com.example.tcc.util.ErrorResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -37,14 +38,14 @@ public class FileController {
             CreateFileResponseDto response = new CreateFileResponseDto(file.getId(), file.getUserId());
             return ResponseEntity.ok(response);
         }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Usuário já tem um arquivo sendo criado");
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse("Usuário já tem um arquivo sendo criado"));
     }
 
     @GetMapping("/{fileId}/assets")
     public ResponseEntity<List<AssetDetailsDto>> get(@PathVariable Long fileId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(!permissionCheckService.checkPermissionForFile((Long)authentication.getPrincipal(), fileId))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         List<AssetDetailsDto> response = assetDetailsService.getAssetsWithURL(fileId);
         return ResponseEntity.ok(response);
@@ -54,16 +55,16 @@ public class FileController {
     public ResponseEntity<?> confirm(@PathVariable Long fileId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(!permissionCheckService.checkPermissionForFile((Long)authentication.getPrincipal(), fileId))
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         try {
             FileModel file = fileConfirmationService.confirm(fileId);
             return ResponseEntity.ok(file);
         } catch (Error | IOException e) {
-            if(Objects.equals(e.getMessage(), "Invalid assets")) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-            } else if(Objects.equals(e.getMessage(), "File not found")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            if(Objects.equals(e.getMessage(), "Bens inválidos")) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(e.getMessage()));
+            } else if(Objects.equals(e.getMessage(), "Arquivo não encontrado")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse(e.getMessage()));
             }
             return ResponseEntity.internalServerError().build();
         }
@@ -78,7 +79,7 @@ public class FileController {
             List<FileModel> response = fileByUserRetrieveService.retrieve(userId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(e.getMessage()));
         }
     }
 
