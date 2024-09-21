@@ -26,6 +26,7 @@ public class AssetController {
     private final AssetImageAdditionService assetImageAdditionService;
     private final AssetImageDeletionService assetImageDeletionService;
     private final PermissionCheckService permissionCheckService;
+    private final AssetRecognitionService assetRecognitionService;
 
     @PostMapping
     public ResponseEntity<?> create(@RequestParam Long fileId, @RequestParam MultipartFile image) {
@@ -57,6 +58,19 @@ public class AssetController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse("Não foi possível encontrar bem com esse número de patrimônio"));
             }
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(e.getMessage()));
+        }
+    }
+
+    @PostMapping("/recognize/{assetId}")
+    public ResponseEntity<?> recognizeAssetNumber(@PathVariable Long assetId) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if(!permissionCheckService.checkPermissionForAsset((Long)authentication.getPrincipal(), assetId))
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        try {
+            CreateAssetResponseDto response = assetRecognitionService.recognize(assetId);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(e.getMessage()));
         }
