@@ -63,7 +63,7 @@ public class AssetController {
         }
     }
 
-    @PostMapping("/recognize/{assetId}")
+    @GetMapping("/recognize/{assetId}")
     public ResponseEntity<?> recognizeAssetNumber(@PathVariable Long assetId) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if(!permissionCheckService.checkPermissionForAsset((Long)authentication.getPrincipal(), assetId))
