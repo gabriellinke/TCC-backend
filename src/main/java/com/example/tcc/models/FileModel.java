@@ -21,6 +21,12 @@ public class FileModel {
     @Column(nullable = false)
     private String filename;
 
+    @Column(name = "asset_quantity", nullable = false)
+    private Long assetQuantity;
+
+    @Column(nullable = false)
+    private String responsible;
+
     @Column(nullable = false)
     private Boolean consolidated;
 
@@ -29,8 +35,10 @@ public class FileModel {
 
     public FileModel() {}
 
-    public FileModel(Long userId, String filename, Boolean consolidated, LocalDateTime consolidatedAt) {
+    public FileModel(Long userId, String filename, Long assetQuantity, String responsible, Boolean consolidated, LocalDateTime consolidatedAt) {
         this.userId = userId;
+        this.assetQuantity = assetQuantity;
+        this.responsible = responsible;
         this.filename = filename;
         this.consolidated = consolidated;
         this.consolidatedAt = consolidatedAt;
@@ -39,6 +47,8 @@ public class FileModel {
     public FileModel(Long userId) {
         this.userId = userId;
         this.filename = "";
+        this.assetQuantity = 0L;
+        this.responsible = "";
         this.consolidated = false;
         this.consolidatedAt = null;
     }

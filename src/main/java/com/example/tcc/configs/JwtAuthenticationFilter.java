@@ -38,7 +38,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // Ignorar as rotas para os recursos
-        if (request.getServletPath().matches(".*\\.(jpg|pdf)$")) {
+        if ("GET".equals(request.getMethod()) && request.getServletPath().matches(".*\\.(jpg|pdf)$")) {
             filterChain.doFilter(request, response);
             return;
         }

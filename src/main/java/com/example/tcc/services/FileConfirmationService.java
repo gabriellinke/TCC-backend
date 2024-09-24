@@ -46,8 +46,10 @@ public class FileConfirmationService {
         return true;
     }
 
-    private FileModel updateFileOnDatabase(FileModel updatedFile, String filename) {
+    private FileModel updateFileOnDatabase(FileModel updatedFile, List<AssetDetailsDto> assets, String filename) {
         updatedFile.setFilename(filename);
+        updatedFile.setAssetQuantity((long) assets.size());
+        updatedFile.setResponsible(assets.getFirst().getResponsible());
         updatedFile.setConsolidated(true);
         updatedFile.setConsolidatedAt(LocalDateTime.now());
         FileModel response = fileRepository.save(updatedFile);
@@ -64,7 +66,7 @@ public class FileConfirmationService {
             labelAllImages(assets);
 
             String filename = fileGenerationService.saveFile(assets);
-            return updateFileOnDatabase(file.get(), filename);
+            return updateFileOnDatabase(file.get(), assets, filename);
         }
         throw new Error("File not found");
     }
