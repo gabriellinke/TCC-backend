@@ -61,7 +61,7 @@ public class FileConfirmationService {
         Optional<FileModel> file = fileRepository.findById(fileId);
         if(file.isPresent()) {
             List<AssetDetailsDto> assets = assetDetailsService.getAssetsWithLocalPath(fileId);
-            if(assets.isEmpty() || !areAssetsValid(assets)) { throw new Error("Invalid assets"); }
+            if(assets.isEmpty() || !areAssetsValid(assets)) { throw new Error("Bens inválidos"); }
 
             labelAllImages(assets);
 
