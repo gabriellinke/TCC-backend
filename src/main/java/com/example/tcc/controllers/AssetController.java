@@ -1,6 +1,7 @@
 package com.example.tcc.controllers;
 
 import com.example.tcc.requests.AssetConfirmationRequestDto;
+import com.example.tcc.responses.AssetConfirmationResponseDto;
 import com.example.tcc.responses.CreateAssetResponseDto;
 import com.example.tcc.services.*;
 import com.example.tcc.util.ErrorResponse;
@@ -49,8 +50,8 @@ public class AssetController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         try {
-            assetConfirmationService.confirm((Long)authentication.getPrincipal(), requestDto.getAssetNumber(), assetId);
-            return ResponseEntity.ok().build();
+            AssetConfirmationResponseDto response = assetConfirmationService.confirm((Long)authentication.getPrincipal(), requestDto.getAssetNumber(), assetId);
+            return ResponseEntity.ok(response);
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();

@@ -4,6 +4,7 @@ import com.example.tcc.models.AssetModel;
 import com.example.tcc.models.FileAssetModel;
 import com.example.tcc.repositories.AssetRepository;
 import com.example.tcc.repositories.FileAssetRepository;
+import com.example.tcc.responses.AssetConfirmationResponseDto;
 import com.example.tcc.responses.AssetInfoResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -64,7 +65,7 @@ public class AssetConfirmationService {
         assetRepository.save(asset);
     }
 
-    public void confirm(Long userId, String assetNumber, Long assetId) throws Exception {
+    public AssetConfirmationResponseDto confirm(Long userId, String assetNumber, Long assetId) throws Exception {
         Optional<FileAssetModel> fileAsset = fileAssetRepository.findByAssetId(assetId);
 
         if (fileAsset.isEmpty()) {
@@ -86,5 +87,15 @@ public class AssetConfirmationService {
 
         AssetModel asset = fileAsset.get().getAsset();
         updateAsset(asset, assetInfo);
+        return new AssetConfirmationResponseDto(
+            assetInfo.getId(),
+            assetInfo.getTombo(),
+            assetInfo.getTomboAntigo(),
+            assetInfo.getDescricao(),
+            assetInfo.getEstadoConservacao(),
+            assetInfo.getSituacao(),
+            assetInfo.getLocal(),
+            assetInfo.getResponsavel()
+        );
     }
 }
