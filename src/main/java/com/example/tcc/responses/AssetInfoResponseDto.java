@@ -12,18 +12,10 @@ import lombok.Setter;
 public class AssetInfoResponseDto {
     private Long id;
     private String tombo;
-    private String tombo_antigo;
+    private String tomboAntigo;
     private String descricao;
-    private String estado_conservacao;
+    private String estadoConservacao;
     private String situacao;
     private String local;
     private String responsavel;
-
-    public String getTomboAntigo() {
-        return tombo_antigo;
-    }
-
-    public String getEstadoConservacao() {
-        return estado_conservacao;
-    }
 }
