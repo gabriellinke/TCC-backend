@@ -19,7 +19,4 @@ public class AssetInfoResponseDto {
     private String situacao;
     private String local;
     private String responsavel;
-    private String dataIncorporacao;
-    private String codigoCampus;
-    private String descricaoCampus;
 }

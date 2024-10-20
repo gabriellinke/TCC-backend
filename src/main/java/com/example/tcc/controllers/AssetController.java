@@ -50,7 +50,7 @@ public class AssetController {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         try {
-            AssetConfirmationResponseDto response = assetConfirmationService.confirm((Long)authentication.getPrincipal(), requestDto.getAssetNumber(), assetId);
+            AssetConfirmationResponseDto response = assetConfirmationService.confirm(requestDto.getAssetNumber(), assetId);
             return ResponseEntity.ok(response);
         } catch (HttpClientErrorException e) {
             if (e.getStatusCode() == HttpStatus.FORBIDDEN) {
