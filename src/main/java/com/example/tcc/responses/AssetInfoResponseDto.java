@@ -1,5 +1,6 @@
 package com.example.tcc.responses;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,4 +19,7 @@ public class AssetInfoResponseDto {
     private String situacao;
     private String local;
     private String responsavel;
+    private String dataIncorporacao;
+    private String codigoCampus;
+    private String descricaoCampus;
 }

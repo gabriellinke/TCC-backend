@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import static com.example.tcc.util.RemoveLeadingZeros.removeLeadingZeros;
 
 @Service
 @RequiredArgsConstructor
@@ -20,13 +21,6 @@ public class AssetConfirmationService {
     private final AssetDeletionService assetDeletionService;
     private final AssetRepository assetRepository;
     private final FileAssetRepository fileAssetRepository;
-
-    private static String removeLeadingZeros(String numberStr) {
-        if (numberStr == null || numberStr.isEmpty()) {
-            return numberStr;
-        }
-        return numberStr.replaceFirst("^0+(?!$)", "");
-    }
 
     private Boolean isAssetConditionValid(AssetInfoResponseDto assetInfo) {
         return (Objects.equals(assetInfo.getEstadoConservacao(), "BOM") && Objects.equals(assetInfo.getSituacao(), "EM USO"));

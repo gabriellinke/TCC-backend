@@ -57,8 +57,6 @@ public class AssetInfoService {
         HttpEntity<String> entity = new HttpEntity<>(headers);
         ResponseEntity<AssetInfoResponseDto> response = restTemplate.exchange(url, HttpMethod.GET, entity, AssetInfoResponseDto.class);
 
-        // TODO: verificar se o User pode ter acesso às informações desse bem
-
         return response.getBody();
     }
 }
