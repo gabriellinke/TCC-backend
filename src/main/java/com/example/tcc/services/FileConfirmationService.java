@@ -3,13 +3,9 @@ package com.example.tcc.services;
 import com.example.tcc.dto.AssetDetailsDto;
 import com.example.tcc.models.FileModel;
 import com.example.tcc.repositories.FileRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -18,8 +14,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class FileConfirmationService {
-    @Value("${tcc.backend.base-url}")
-    private String baseURL;
+    private final String bucketURL;
     private final AssetDetailsService assetDetailsService;
     private final ImageLabelingService imageLabelingService;
     private final FileGenerationService fileGenerationService;
@@ -53,14 +48,14 @@ public class FileConfirmationService {
         updatedFile.setConsolidated(true);
         updatedFile.setConsolidatedAt(LocalDateTime.now());
         FileModel response = fileRepository.save(updatedFile);
-        response.setFilename(baseURL+ "file/" +filename);
+        response.setFilename(bucketURL+filename);
         return response;
     }
 
     public FileModel confirm(Long fileId) throws Error, IOException {
         Optional<FileModel> file = fileRepository.findById(fileId);
         if(file.isPresent()) {
-            List<AssetDetailsDto> assets = assetDetailsService.getAssetsWithLocalPath(fileId);
+            List<AssetDetailsDto> assets = assetDetailsService.getAssets(fileId);
             if(assets.isEmpty() || !areAssetsValid(assets)) { throw new Error("Bens inválidos"); }
 
             labelAllImages(assets);

@@ -23,10 +23,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class AssetCreationService {
-    @Value("${tcc.disk.images-directory}")
-    private String imageDirectory;
-    @Value("${tcc.backend.base-url}")
-    private String baseURL;
+    private final String bucketURL;
     private final AssetRepository assetRepository;
     private final FileAssetRepository fileAssetRepository;
     private final FileRepository fileRepository;
@@ -51,13 +48,12 @@ public class AssetCreationService {
             if(!assets.isEmpty() && !areAssetsValid(assets)) { throw new Exception("Arquivo contém um bem incompleto. Não foi possível adicionar novo bem"); }
 
             String filename = imageUploadService.saveImage(image);
-            String path = Paths.get(imageDirectory).toAbsolutePath().normalize().resolve(filename).toString();
-            BufferedImage bufferedImage = barcodeDetectionService.detectBarcode(path);
+            BufferedImage bufferedImage = barcodeDetectionService.detectBarcode(filename);
             AssetNumberRecognitionDto assetInfo = assetNumberService.getAssetNumberAndConfidenceLevel(bufferedImage);
 
             AssetModel asset = assetRepository.save(new AssetModel(filename));
             fileAssetRepository.save(new FileAssetModel(file.get(), asset));
-            return new CreateAssetResponseDto(fileId, asset.getId(), baseURL+"image/"+filename, assetInfo.getAssetNumber(), assetInfo.getConfidenceLevel());
+            return new CreateAssetResponseDto(fileId, asset.getId(), bucketURL + filename, assetInfo.getAssetNumber(), assetInfo.getConfidenceLevel());
         } else {
             throw new NoSuchElementException("Arquivo com id " + fileId + " não encontrado");
         }

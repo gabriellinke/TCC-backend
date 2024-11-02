@@ -6,10 +6,7 @@ import com.example.tcc.models.FileModel;
 import com.example.tcc.services.*;
 import com.example.tcc.util.ErrorResponse;
 import lombok.AllArgsConstructor;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -27,7 +24,6 @@ public class FileController {
     private final FileConfirmationService fileConfirmationService;
     private final AssetDetailsService assetDetailsService;
     private final PermissionCheckService permissionCheckService;
-    private final FileRetrieveService fileRetrieveService;
     private final FileByUserRetrieveService fileByUserRetrieveService;
 
     @PostMapping
@@ -81,17 +77,5 @@ public class FileController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(e.getMessage()));
         }
-    }
-
-    @GetMapping("/{filename}")
-    public ResponseEntity<Resource> retrieve(@PathVariable String filename) {
-        Resource file = fileRetrieveService.retrieveFile(filename);
-        if (file != null && (file.exists() || file.isReadable())) {
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + file.getFilename() + "\"")
-                    .contentType(MediaType.APPLICATION_PDF)
-                    .body(file);
-        }
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
     }
 }

@@ -1,37 +1,29 @@
 package com.example.tcc.services;
 
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import nu.pattern.OpenCV;
 import org.opencv.core.*;
 import org.opencv.imgcodecs.Imgcodecs;
 import org.opencv.imgproc.Imgproc;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Comparator;
 
 @Service
+@RequiredArgsConstructor
 public class BarcodeDetectionService {
-
-    @Value("${tcc.disk.images-directory}")
-    private String imageDirectory;
-    private Path uploadPath;
-    private final boolean debug = true;
+    private final AWSS3Service s3Service;
 
     @PostConstruct
     public void init() {
         // Carregar biblioteca do OpenCV
         OpenCV.loadShared();
-
-        // Definir o path de upload como uma variável da classe
-        uploadPath = Paths.get(this.imageDirectory).toAbsolutePath().normalize();
     }
 
     private static BufferedImage matToBufferedImage(Mat mat) {
@@ -65,11 +57,6 @@ public class BarcodeDetectionService {
         Mat gray = new Mat();
         Imgproc.cvtColor(image, gray, Imgproc.COLOR_BGR2GRAY);
 
-        if (debug) {
-            Path filePath = uploadPath.resolve("gray.jpg");
-            Imgcodecs.imwrite(filePath.toString(), gray);
-        }
-
         return gray;
     }
 
@@ -82,11 +69,6 @@ public class BarcodeDetectionService {
         Core.subtract(gradX, gradY, gradient);
         Core.convertScaleAbs(gradient, gradient);
 
-        if (debug) {
-            Path filePath = uploadPath.resolve("gradient.jpg");
-            Imgcodecs.imwrite(filePath.toString(), gradient);
-        }
-
         return gradient;
     }
 
@@ -96,11 +78,6 @@ public class BarcodeDetectionService {
         Mat thresh = new Mat();
         Imgproc.threshold(blurred, thresh, 200, 255, Imgproc.THRESH_BINARY);
 
-        if (debug) {
-            Path filePath = uploadPath.resolve("thresh.jpg");
-            Imgcodecs.imwrite(filePath.toString(), thresh);
-        }
-
         return thresh;
     }
 
@@ -109,22 +86,12 @@ public class BarcodeDetectionService {
         Mat closed = new Mat();
         Imgproc.morphologyEx(thresh, closed, Imgproc.MORPH_CLOSE, kernel);
 
-        if (debug) {
-            Path filePath = uploadPath.resolve("closed.jpg");
-            Imgcodecs.imwrite(filePath.toString(), closed);
-        }
-
         return closed;
     }
 
     private Mat computeErosionAndDilatation(Mat closed) {
         Imgproc.erode(closed, closed, new Mat(), new Point(-1, -1), 1);
         Imgproc.dilate(closed, closed, new Mat(), new Point(-1, -1), 1);
-
-        if (debug) {
-            Path filePath = uploadPath.resolve("eroded.jpg");
-            Imgcodecs.imwrite(filePath.toString(), closed);
-        }
 
         return closed;
     }
@@ -176,15 +143,22 @@ public class BarcodeDetectionService {
         return new Mat(image, new Rect(x1, y1, x2 - x1, y2 - y1));
     }
 
-    public BufferedImage detectBarcode(String imagePath) {
-        // Carregar a imagem
-        Mat image = Imgcodecs.imread(imagePath);
+    public BufferedImage detectBarcode(String filename) {
+        // Baixar a imagem do S3 e obter os bytes
+        byte[] imageBytes = s3Service.downloadImage(filename);
 
-        if (image.empty()) {
-            System.err.println("Imagem não encontrada");
+        if (imageBytes == null) {
+            System.err.println("Erro ao obter imagem do S3.");
             return null;
         }
 
+        // Converter byte array para Mat
+        Mat image = Imgcodecs.imdecode(new MatOfByte(imageBytes), Imgcodecs.IMREAD_COLOR);
+
+        if (image.empty()) {
+            System.err.println("Imagem não encontrada ou inválida");
+            return null;
+        }
         // Processar a imagem
         Mat croppedImage = cropInitialImage(image);
         Mat gray = convertToGrayScale(croppedImage);
@@ -199,11 +173,6 @@ public class BarcodeDetectionService {
         if(finalImage == null) {
             System.err.println("Código de barras não encontrado. Retornando imagem completa");
             finalImage = croppedImage;
-        }
-
-        if (debug) {
-            Path filePath = uploadPath.resolve("final_image.jpg");
-            Imgcodecs.imwrite(filePath.toString(), finalImage);
         }
 
         return matToBufferedImage(finalImage);

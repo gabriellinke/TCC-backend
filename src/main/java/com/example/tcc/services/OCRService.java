@@ -2,10 +2,7 @@ package com.example.tcc.services;
 
 import com.example.tcc.dto.AssetNumberRecognitionDto;
 import com.example.tcc.util.CustomMultipartFile;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
 import org.springframework.http.*;
-import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -13,20 +10,17 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import javax.imageio.ImageIO;
 
 @Service
 public class OCRService {
-
-    @Value("${ocr.server.url}")
-    private String ocrServerUrl;
-
+    private final String ocrServerEndpoint;
     private final RestTemplate restTemplate;
 
-    public OCRService() {
+    public OCRService(String ocrServerEndpoint) {
+        this.ocrServerEndpoint = ocrServerEndpoint;
         this.restTemplate = new RestTemplate();
     }
 
@@ -51,7 +45,7 @@ public class OCRService {
                     new HttpEntity<>(parts, headers);
 
             ResponseEntity<AssetNumberRecognitionDto> response = restTemplate.exchange(
-                    ocrServerUrl + "/upload-image/",
+                    ocrServerEndpoint,
                     HttpMethod.POST,
                     requestEntity,
                     AssetNumberRecognitionDto.class

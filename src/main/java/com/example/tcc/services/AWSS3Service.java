@@ -1,6 +1,5 @@
 package com.example.tcc.services;
 
-import com.amazonaws.AmazonServiceException;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.*;
 import com.example.tcc.Representation.BucketObjectRepresentation;
@@ -8,6 +7,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.*;
 import java.util.List;
@@ -16,38 +16,15 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class AWSS3Service {
-
+    private final String bucketName;
     private final AmazonS3 amazonS3Client;
-
-    //Bucket level operations
-
-    public void createS3Bucket(String bucketName, boolean publicBucket) {
-        if(amazonS3Client.doesBucketExist(bucketName)) {
-            log.info("Bucket name already in use. Try another name.");
-            return;
-        }
-        if(publicBucket) {
-            amazonS3Client.createBucket(bucketName);
-        } else {
-            amazonS3Client.createBucket(new CreateBucketRequest(bucketName).withCannedAcl(CannedAccessControlList.Private));
-        }
-    }
 
     public List<Bucket> listBuckets(){
         return amazonS3Client.listBuckets();
     }
 
-    public void deleteBucket(String bucketName){
-        try {
-            amazonS3Client.deleteBucket(bucketName);
-        } catch (AmazonServiceException e) {
-            log.error(e.getErrorMessage());
-            return;
-        }
-    }
-
     //Object level operations
-    public void putObject(String bucketName, BucketObjectRepresentation representation) throws IOException {
+    public void putObject(BucketObjectRepresentation representation) throws IOException {
 
         String objectName = representation.getObjectName();
         String objectValue = representation.getText();
@@ -60,21 +37,53 @@ public class AWSS3Service {
         printWriter.close();
 
         try {
-            amazonS3Client.putObject(new PutObjectRequest(bucketName, objectName, file));
+            amazonS3Client.putObject(new PutObjectRequest(this.bucketName, objectName, file));
         } catch (Exception e){
             log.error("Some error has ocurred.", e);
             throw e;
         }
-
     }
 
-    public List<S3ObjectSummary> listObjects(String bucketName){
-        ObjectListing objectListing = amazonS3Client.listObjects(bucketName);
+    public void putImage(String objectName, MultipartFile multipartFile) throws IOException {
+        try {
+            // Set the metadata for the S3 object (e.g., content type, size)
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(multipartFile.getSize());
+            metadata.setContentType("image/jpeg");
+
+            // Upload the file directly from the MultipartFile's input stream
+            amazonS3Client.putObject(
+                    new PutObjectRequest(this.bucketName, objectName, multipartFile.getInputStream(), metadata)
+            );
+        } catch (Exception e) {
+            log.error("An error occurred while uploading the file.", e);
+            throw e;
+        }
+    }
+
+    public void putPDF(String objectName, ByteArrayOutputStream outputStream) {
+        try {
+            // Prepare metadata for S3 upload
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(outputStream.size());
+            metadata.setContentType("application/pdf");
+
+            // Upload PDF to S3 using ByteArrayInputStream
+            ByteArrayInputStream inputStream = new ByteArrayInputStream(outputStream.toByteArray());
+            amazonS3Client.putObject(new PutObjectRequest(this.bucketName, objectName, inputStream, metadata));
+
+        } catch (Exception e) {
+            log.error("Error while creating or uploading PDF to S3", e);
+        }
+    }
+
+    public List<S3ObjectSummary> listObjects(){
+        ObjectListing objectListing = amazonS3Client.listObjects(this.bucketName);
         return objectListing.getObjectSummaries();
     }
 
-    public void downloadObject(String bucketName, String objectName){
-        S3Object s3object = amazonS3Client.getObject(bucketName, objectName);
+    public void downloadObject(String objectName){
+        S3Object s3object = amazonS3Client.getObject(this.bucketName, objectName);
         S3ObjectInputStream inputStream = s3object.getObjectContent();
         try {
             FileUtils.copyInputStreamToFile(inputStream, new File("." + File.separator + objectName));
@@ -83,12 +92,35 @@ public class AWSS3Service {
         }
     }
 
-    public void deleteObject(String bucketName, String objectName){
-        amazonS3Client.deleteObject(bucketName, objectName);
+    public byte[] downloadImage(String objectName) {
+        S3Object s3object = amazonS3Client.getObject(this.bucketName, objectName);
+        S3ObjectInputStream inputStream = s3object.getObjectContent();
+
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(buffer)) != -1) {
+                byteArrayOutputStream.write(buffer, 0, bytesRead);
+            }
+            return byteArrayOutputStream.toByteArray();
+        } catch (IOException e) {
+            log.error("Erro ao baixar o objeto do S3: " + e.getMessage());
+            return null;
+        } finally {
+            try {
+                inputStream.close();
+            } catch (IOException e) {
+                log.error("Erro ao fechar o InputStream: " + e.getMessage());
+            }
+        }
     }
 
-    public void deleteMultipleObjects(String bucketName, List<String> objects){
-        DeleteObjectsRequest delObjectsRequests = new DeleteObjectsRequest(bucketName)
+    public void deleteObject(String objectName){
+        amazonS3Client.deleteObject(this.bucketName, objectName);
+    }
+
+    public void deleteMultipleObjects(List<String> objects){
+        DeleteObjectsRequest delObjectsRequests = new DeleteObjectsRequest(this.bucketName)
                 .withKeys(objects.toArray(new String[0]));
         amazonS3Client.deleteObjects(delObjectsRequests);
     }

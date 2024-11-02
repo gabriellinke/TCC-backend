@@ -4,9 +4,14 @@ import com.amazonaws.services.s3.model.Bucket;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.example.tcc.Representation.BucketObjectRepresentation;
 import com.example.tcc.services.AWSS3Service;
+import com.itextpdf.kernel.pdf.PdfDocument;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.layout.Document;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
@@ -16,13 +21,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/buckets")
 @RequiredArgsConstructor
 public class ControllerTests {
-
     private final AWSS3Service s3Service;
-
-    @PostMapping(value = "/{bucketName}")
-    public void createBucket(@PathVariable String bucketName, @RequestParam boolean publicBucket){
-        s3Service.createS3Bucket(bucketName, publicBucket);
-    }
 
     @GetMapping
     public List<String> listBuckets(){
@@ -31,19 +30,35 @@ public class ControllerTests {
         return names;
     }
 
-    @DeleteMapping(value = "/{bucketName}")
-    public void deleteBucket(@PathVariable String bucketName){
-        s3Service.deleteBucket(bucketName);
+    @PostMapping(value = "/objects")
+    public void createObject(@RequestBody BucketObjectRepresentation representation) throws IOException {
+        s3Service.putObject(representation);
     }
 
-    @PostMapping(value = "/{bucketName}/objects")
-    public void createObject(@PathVariable String bucketName, @RequestBody BucketObjectRepresentation representation) throws IOException {
-        s3Service.putObject(bucketName, representation);
+    @PostMapping(value = "/image")
+    public void createImage(@RequestParam String filename, @RequestParam MultipartFile image) throws IOException {
+        s3Service.putImage(filename, image);
     }
 
-    @GetMapping(value = "/{bucketName}/objects/{objectName}")
-    public File downloadObject(@PathVariable String bucketName, @PathVariable String objectName) {
-        s3Service.downloadObject(bucketName, objectName);
+    @PostMapping(value = "/file")
+    public void createFile(@RequestParam String filename) throws IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        PdfWriter writer = new PdfWriter(outputStream);
+        PdfDocument pdfDoc = new PdfDocument(writer);
+        Document document = new Document(pdfDoc);
+
+        // Add content to the PDF document (for example, a simple paragraph)
+        document.add(new com.itextpdf.layout.element.Paragraph("Hello, S3! This is a test PDF."));
+
+        // Close the document to flush content to the outputStream
+        document.close();
+
+        s3Service.putPDF(filename, outputStream);
+    }
+
+    @GetMapping(value = "/objects/{objectName}")
+    public File downloadObject(@PathVariable String objectName) {
+        s3Service.downloadObject(objectName);
         return new File("./" + objectName);
     }
 
@@ -52,19 +67,19 @@ public class ControllerTests {
         s3Service.moveObject(bucketSourceName, objectName, bucketTargetName);
     }
 
-    @GetMapping(value = "/{bucketName}/objects")
-    public List<String> listObjects(@PathVariable String bucketName) {
-        return s3Service.listObjects(bucketName).stream().map(S3ObjectSummary::getKey).collect(Collectors.toList());
+    @GetMapping(value = "/objects")
+    public List<String> listObjects() {
+        return s3Service.listObjects().stream().map(S3ObjectSummary::getKey).collect(Collectors.toList());
     }
 
-    @DeleteMapping(value = "/{bucketName}/objects/{objectName}")
-    public void deleteObject(@PathVariable String bucketName, @PathVariable String objectName) {
-        s3Service.deleteObject(bucketName, objectName);
+    @DeleteMapping(value = "/objects/{objectName}")
+    public void deleteObject(@PathVariable String objectName) {
+        s3Service.deleteObject(objectName);
     }
 
-    @DeleteMapping(value = "/{bucketName}/objects")
-    public void deleteObject(@PathVariable String bucketName, @RequestBody List<String> objects) {
-        s3Service.deleteMultipleObjects(bucketName, objects);
+    @DeleteMapping(value = "/objects")
+    public void deleteObject(@RequestBody List<String> objects) {
+        s3Service.deleteMultipleObjects(objects);
     }
 
 }

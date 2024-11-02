@@ -3,33 +3,37 @@ package com.example.tcc.services;
 import com.example.tcc.dto.AssetDetailsDto;
 import com.itextpdf.io.image.ImageData;
 import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.io.source.ByteArrayOutputStream;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.*;
-import org.springframework.beans.factory.annotation.Value;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
 @Service
+@RequiredArgsConstructor
 public class FileGenerationService {
-    @Value("${tcc.disk.files-directory}")
-    private String filesDirectory;
+    private final AWSS3Service s3Service;
 
     public String saveFile(List<AssetDetailsDto> assets) throws IOException {
-        return this.save(this.filesDirectory, assets);
+        return this.save(assets);
     }
 
-    private void addImage(Document document, String path) {
+    private void addImage(Document document, String filename) {
         try {
-            ImageData imgData = ImageDataFactory.create(path);
+            byte[] imageBytes = s3Service.downloadImage(filename);
+
+            if (imageBytes == null) {
+                System.err.println("Erro ao obter imagem do S3.");
+                throw new RuntimeException("Erro ao obter imagem do S3.");
+            }
+
+            ImageData imgData = ImageDataFactory.create(imageBytes);
             Image img = new Image(imgData);
             document.add(img);
         } catch (Exception e) {
@@ -93,19 +97,14 @@ public class FileGenerationService {
         }
     }
 
-    public String save(String directory, List<AssetDetailsDto> assets) throws IOException {
+    public String save(List<AssetDetailsDto> assets) {
         try {
-            Path uploadPath = Paths.get(directory).toAbsolutePath().normalize();
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            // Gera um nome de arquivo único com a extensão .jpg
+            // Gera um nome de arquivo único com a extensão .pdf
             String uniqueFilename = UUID.randomUUID() + ".pdf";
-            String filePath = uploadPath.resolve(uniqueFilename).toString();
 
             // Cria o documento PDF
-            PdfWriter writer = new PdfWriter(new FileOutputStream(filePath));
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            PdfWriter writer = new PdfWriter(baos);
             PdfDocument pdfDoc = new PdfDocument(writer);
             Document document = new Document(pdfDoc);
 
@@ -120,6 +119,7 @@ public class FileGenerationService {
             }
 
             document.close();
+            s3Service.putPDF(uniqueFilename, baos);
             return uniqueFilename;
         } catch (Exception e) {
             e.printStackTrace();

@@ -6,21 +6,18 @@ import com.example.tcc.repositories.FileAssetRepository;
 import com.example.tcc.repositories.ImageRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class AssetDeletionService {
-    @Value("${tcc.disk.images-directory}")
-    private String imageDirectory;
     private final AssetRepository assetRepository;
     private final FileAssetRepository fileAssetRepository;
     private final ImageRepository imageRepository;
+    private final AWSS3Service s3Service;
 
     @Transactional
     public void delete(Long assetId) {
@@ -30,10 +27,8 @@ public class AssetDeletionService {
             List<String> filenames = imageRepository.findFilenamesByAssetId(assetId);
             filenames.add(asset.get().getMainImage());
 
-            // Delete as imagens do filesystem
-            for (String filename : filenames) {
-                deleteFileFromSystem(imageDirectory + "/" + filename);
-            }
+            // Deleta as imagens do bucket
+            s3Service.deleteMultipleObjects(filenames);
 
             // Deleta as imagens relacionadas
             imageRepository.deleteByAssetId(assetId);
@@ -43,15 +38,6 @@ public class AssetDeletionService {
 
             // Deleta o próprio asset
             assetRepository.deleteById(assetId);
-        }
-
-
-    }
-
-    private void deleteFileFromSystem(String filePath) {
-        File file = new File(filePath);
-        if (file.exists()) {
-            file.delete();
         }
     }
 }
