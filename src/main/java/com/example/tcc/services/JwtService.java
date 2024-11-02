@@ -32,7 +32,7 @@ public class JwtService {
     }
 
     public String generateToken(UserModel userDetails) {
-        Map<String, Object> map = new HashMap<String, Object>() {{
+        Map<String, Object> map = new HashMap<>() {{
             put("id", userDetails.getId());
         }};
         return generateToken(map, userDetails);

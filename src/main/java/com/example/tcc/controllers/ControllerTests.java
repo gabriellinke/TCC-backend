@@ -26,8 +26,7 @@ public class ControllerTests {
     @GetMapping
     public List<String> listBuckets(){
         var buckets = s3Service.listBuckets();
-        var names = buckets.stream().map(Bucket::getName).collect(Collectors.toList());
-        return names;
+        return buckets.stream().map(Bucket::getName).collect(Collectors.toList());
     }
 
     @PostMapping(value = "/objects")
@@ -41,7 +40,7 @@ public class ControllerTests {
     }
 
     @PostMapping(value = "/file")
-    public void createFile(@RequestParam String filename) throws IOException {
+    public void createFile(@RequestParam String filename) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PdfWriter writer = new PdfWriter(outputStream);
         PdfDocument pdfDoc = new PdfDocument(writer);

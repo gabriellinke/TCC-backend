@@ -10,12 +10,10 @@ import com.example.tcc.repositories.AssetRepository;
 import com.example.tcc.repositories.FileAssetRepository;
 import com.example.tcc.repositories.FileRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.image.BufferedImage;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;

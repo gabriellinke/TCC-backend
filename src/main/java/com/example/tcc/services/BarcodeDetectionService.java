@@ -110,9 +110,7 @@ public class BarcodeDetectionService {
 
         double contourArea = Imgproc.contourArea(largestContour);
         double minArea = 0.03 * image.cols() * image.rows(); // 3% da área da imagem original
-        if(contourArea < minArea) return false;
-
-        return true;
+        return !(contourArea < minArea);
     }
 
     private Mat extractLargestContour(Mat image, MatOfPoint largestContour) {

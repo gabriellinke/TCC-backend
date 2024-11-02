@@ -11,7 +11,6 @@ import com.itextpdf.layout.element.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,7 +19,7 @@ import java.util.UUID;
 public class FileGenerationService {
     private final AWSS3Service s3Service;
 
-    public String saveFile(List<AssetDetailsDto> assets) throws IOException {
+    public String saveFile(List<AssetDetailsDto> assets) {
         return this.save(assets);
     }
 

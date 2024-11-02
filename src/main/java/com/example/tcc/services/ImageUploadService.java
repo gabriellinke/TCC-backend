@@ -19,7 +19,7 @@ public class ImageUploadService {
     public String saveToBucket(MultipartFile file) {
         try {
             // Gera um nome de arquivo único com a extensão .jpg
-            String uniqueFilename = UUID.randomUUID().toString() + ".jpg";
+            String uniqueFilename = UUID.randomUUID() + ".jpg";
 
             s3Service.putImage(uniqueFilename, file);
 
