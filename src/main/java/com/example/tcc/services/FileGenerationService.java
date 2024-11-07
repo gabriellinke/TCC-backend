@@ -74,13 +74,13 @@ public class FileGenerationService {
 
     private void addDataToTable(Table table, AssetDetailsDto data) {
             // Adicionar dados à tabela
-            table.addCell(new Cell().add(new Paragraph(data.getAssetNumber())));
-            table.addCell(new Cell().add(new Paragraph(data.getFormerAssetNumber())));
-            table.addCell(new Cell().add(new Paragraph(data.getDescription())));
-            table.addCell(new Cell().add(new Paragraph(data.getConservationState())));
-            table.addCell(new Cell().add(new Paragraph(data.getSituation())));
-            table.addCell(new Cell().add(new Paragraph(data.getPlace())));
-            table.addCell(new Cell().add(new Paragraph(data.getResponsible())));
+            table.addCell(new Cell().add(new Paragraph(data.getAssetNumber() != null ? data.getAssetNumber() : "")));
+            table.addCell(new Cell().add(new Paragraph(data.getFormerAssetNumber() != null ? data.getFormerAssetNumber() : "")));
+            table.addCell(new Cell().add(new Paragraph(data.getDescription() != null ? data.getDescription() : "")));
+            table.addCell(new Cell().add(new Paragraph(data.getConservationState() != null ? data.getConservationState() : "")));
+            table.addCell(new Cell().add(new Paragraph(data.getSituation() != null ? data.getSituation() : "")));
+            table.addCell(new Cell().add(new Paragraph(data.getPlace() != null ? data.getPlace() : "")));
+            table.addCell(new Cell().add(new Paragraph(data.getResponsible() != null ? data.getResponsible() : "")));
     }
 
     private void addTable(Document document, AssetDetailsDto asset) {
