@@ -72,7 +72,7 @@ public class FileController {
         Long userId = (Long) authentication.getPrincipal();
 
         try {
-            List<FileModel> response = fileByUserRetrieveService.retrieve(userId);
+            List<FileModel> response = fileByUserRetrieveService.retrieveWithDateFilter(userId);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(e.getMessage()));
