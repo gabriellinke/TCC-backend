@@ -1,40 +1,64 @@
 package com.example.tcc.services;
 
 import com.example.tcc.dto.AssetDetailsDto;
+import com.example.tcc.dto.AssetImagesDto;
 import com.example.tcc.models.FileModel;
 import com.example.tcc.repositories.FileRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class FileConfirmationService {
-    @Value("${tcc.backend.base-url}")
-    private String baseURL;
+    private final String bucketURL;
     private final AssetDetailsService assetDetailsService;
     private final ImageLabelingService imageLabelingService;
     private final FileGenerationService fileGenerationService;
     private final FileRepository fileRepository;
+    private final AWSS3Service s3Service;
 
-    private void labelAllImages(List<AssetDetailsDto> assets) {
-        for (AssetDetailsDto asset : assets) {
-            // Label para a main image
-            imageLabelingService.drawString(asset.getMainImage(), asset.getAssetNumber());
-
-            // Label para cada imagem na lista de images
-            for (String image : asset.getImages()) {
-                imageLabelingService.drawString(image, asset.getAssetNumber());
+    private void labelAllImages(List<AssetImagesDto> assetImages) {
+        for (AssetImagesDto asset : assetImages) {
+            asset.setMainImageLabeledBytes(imageLabelingService.drawString(asset.getMainImageBytes(), asset.getAssetNumber()));
+            for (byte[] image : asset.getImagesBytes()) {
+                byte[] labeledImage = imageLabelingService.drawString(image, asset.getAssetNumber());
+                asset.getImagesLabeledBytes().add(labeledImage);
             }
         }
+    }
+
+    private List<AssetImagesDto> downloadAllImages(List<AssetDetailsDto> assets) {
+        List<CompletableFuture<AssetImagesDto>> futures = assets.stream().map(asset ->
+                CompletableFuture.supplyAsync(() -> {
+                    AssetImagesDto assetImages = new AssetImagesDto(asset.getId(), asset.getAssetNumber());
+
+                    // Download da imagem principal em paralelo
+                    CompletableFuture<byte[]> mainImageFuture = CompletableFuture.supplyAsync(() -> s3Service.downloadImage(asset.getMainImage()));
+                    assetImages.setMainImageBytes(mainImageFuture.join());
+
+                    // Download das outras imagens em paralelo
+                    List<CompletableFuture<byte[]>> imageFutures = asset.getImages().stream()
+                            .map(image -> CompletableFuture.supplyAsync(() -> s3Service.downloadImage(image)))
+                            .toList();
+
+                    // Coleta os resultados dos downloads paralelos
+                    assetImages.setImagesBytes(imageFutures.stream()
+                            .map(CompletableFuture::join)
+                            .collect(Collectors.toList()));
+
+                    return assetImages;
+                })
+        ).toList();
+
+        // Aguarda que todos os downloads estejam completos
+        return futures.stream().map(CompletableFuture::join).collect(Collectors.toList());
     }
 
     private Boolean areAssetsValid(List<AssetDetailsDto> assets) {
@@ -53,19 +77,21 @@ public class FileConfirmationService {
         updatedFile.setConsolidated(true);
         updatedFile.setConsolidatedAt(LocalDateTime.now());
         FileModel response = fileRepository.save(updatedFile);
-        response.setFilename(baseURL+ "file/" +filename);
+        response.setFilename(bucketURL+filename);
         return response;
     }
 
     public FileModel confirm(Long fileId) throws Error, IOException {
         Optional<FileModel> file = fileRepository.findById(fileId);
         if(file.isPresent()) {
-            List<AssetDetailsDto> assets = assetDetailsService.getAssetsWithLocalPath(fileId);
+            List<AssetDetailsDto> assets = assetDetailsService.getAssets(fileId);
             if(assets.isEmpty() || !areAssetsValid(assets)) { throw new Error("Bens inválidos"); }
 
-            labelAllImages(assets);
+            List<AssetImagesDto> assetImages = downloadAllImages(assets);
 
-            String filename = fileGenerationService.saveFile(assets);
+            labelAllImages(assetImages);
+
+            String filename = fileGenerationService.saveFile(assets, assetImages);
             return updateFileOnDatabase(file.get(), assets, filename);
         }
         throw new Error("File not found");

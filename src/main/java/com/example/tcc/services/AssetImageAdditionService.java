@@ -5,7 +5,6 @@ import com.example.tcc.models.ImageModel;
 import com.example.tcc.repositories.AssetRepository;
 import com.example.tcc.repositories.ImageRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,15 +14,14 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class AssetImageAdditionService {
-    @Value("${tcc.backend.base-url}")
-    private String baseURL;
+    private final String bucketURL;
     private final AssetRepository assetRepository;
     private final ImageRepository imageRepository;
     private final ImageUploadService imageUploadService;
 
     public String add(Long assetId, MultipartFile image) {
         String filename = imageUploadService.saveImage(image);
-        String path = baseURL + "image/" + filename;
+        String path = bucketURL + filename;
 
         Optional<AssetModel> asset = assetRepository.findById(assetId);
 
