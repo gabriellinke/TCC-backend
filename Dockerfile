@@ -1,4 +1,4 @@
-FROM openjdk:22-jdk AS runtime
+FROM eclipse-temurin:23-jre
 WORKDIR /app
 
 # Copiar o .jar da etapa de build
