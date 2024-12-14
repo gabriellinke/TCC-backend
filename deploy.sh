@@ -1,8 +1,5 @@
 source aws/aws.env
 
-# Compila o código
-./mvnw package
-
 # Cria a imagem localmente
 docker compose build
 
