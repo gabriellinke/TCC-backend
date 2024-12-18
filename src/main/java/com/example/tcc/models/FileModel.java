@@ -15,8 +15,8 @@ public class FileModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "user_email", nullable = false)
+    private String userEmail;
 
     @Column(nullable = false)
     private String filename;
@@ -35,8 +35,8 @@ public class FileModel {
 
     public FileModel() {}
 
-    public FileModel(Long userId, String filename, Long assetQuantity, String responsible, Boolean consolidated, LocalDateTime consolidatedAt) {
-        this.userId = userId;
+    public FileModel(String userEmail, String filename, Long assetQuantity, String responsible, Boolean consolidated, LocalDateTime consolidatedAt) {
+        this.userEmail = userEmail;
         this.assetQuantity = assetQuantity;
         this.responsible = responsible;
         this.filename = filename;
@@ -44,8 +44,8 @@ public class FileModel {
         this.consolidatedAt = consolidatedAt;
     }
 
-    public FileModel(Long userId) {
-        this.userId = userId;
+    public FileModel(String userEmail) {
+        this.userEmail = userEmail;
         this.filename = "";
         this.assetQuantity = 0L;
         this.responsible = "";

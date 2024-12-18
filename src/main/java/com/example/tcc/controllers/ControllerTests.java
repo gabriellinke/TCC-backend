@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/buckets")
 @RequiredArgsConstructor

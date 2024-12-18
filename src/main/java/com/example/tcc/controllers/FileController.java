@@ -1,6 +1,7 @@
 package com.example.tcc.controllers;
 
 import com.example.tcc.dto.AssetDetailsDto;
+import com.example.tcc.jwt.CustomJwt;
 import com.example.tcc.responses.CreateFileResponseDto;
 import com.example.tcc.models.FileModel;
 import com.example.tcc.services.*;
@@ -8,7 +9,6 @@ import com.example.tcc.util.ErrorResponse;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/file")
 @AllArgsConstructor
@@ -28,10 +29,12 @@ public class FileController {
 
     @PostMapping
     public ResponseEntity<?> create() {
-        Long userId = (Long) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        if(fileCreationService.canCreateFile(userId)) {
-            FileModel file = fileCreationService.create(userId);
-            CreateFileResponseDto response = new CreateFileResponseDto(file.getId(), file.getUserId());
+        var jwt = (CustomJwt) SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = jwt.getEmail();
+
+        if(fileCreationService.canCreateFile(userEmail)) {
+            FileModel file = fileCreationService.create(userEmail);
+            CreateFileResponseDto response = new CreateFileResponseDto(file.getId(), file.getUserEmail());
             return ResponseEntity.ok(response);
         }
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse("Usuário já tem um arquivo sendo criado"));
@@ -39,8 +42,9 @@ public class FileController {
 
     @GetMapping("/{fileId}/assets")
     public ResponseEntity<List<AssetDetailsDto>> get(@PathVariable Long fileId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(!permissionCheckService.checkPermissionForFile((Long)authentication.getPrincipal(), fileId))
+        var jwt = (CustomJwt) SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = jwt.getEmail();
+        if(!permissionCheckService.checkPermissionForFile(userEmail, fileId))
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         List<AssetDetailsDto> response = assetDetailsService.getAssetsWithURL(fileId);
@@ -49,8 +53,9 @@ public class FileController {
 
     @PostMapping("/{fileId}/confirm")
     public ResponseEntity<?> confirm(@PathVariable Long fileId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(!permissionCheckService.checkPermissionForFile((Long)authentication.getPrincipal(), fileId))
+        var jwt = (CustomJwt) SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = jwt.getEmail();
+        if(!permissionCheckService.checkPermissionForFile(userEmail, fileId))
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         try {
@@ -68,11 +73,11 @@ public class FileController {
 
     @GetMapping
     public ResponseEntity<?> get() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        Long userId = (Long) authentication.getPrincipal();
+        var jwt = (CustomJwt) SecurityContextHolder.getContext().getAuthentication();
+        String userEmail = jwt.getEmail();
 
         try {
-            List<FileModel> response = fileByUserRetrieveService.retrieveWithDateFilter(userId);
+            List<FileModel> response = fileByUserRetrieveService.retrieveWithDateFilter(userEmail);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ErrorResponse(e.getMessage()));

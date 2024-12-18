@@ -14,12 +14,12 @@ public class FileCreationService {
         this.fileRepository = fileRepository;
     }
 
-    public FileModel create(Long userId) {
-        return fileRepository.save(new FileModel(userId));
+    public FileModel create(String userEmail) {
+        return fileRepository.save(new FileModel(userEmail));
     }
 
-    public Boolean canCreateFile(Long userId) {
-        List<FileModel> userFiles = fileRepository.findByUserId(userId);
+    public Boolean canCreateFile(String userEmail) {
+        List<FileModel> userFiles = fileRepository.findByUserEmail(userEmail);
         List<FileModel> notConsolidatedFiles = userFiles.stream().filter(file -> !file.getConsolidated()).toList();
         return notConsolidatedFiles.isEmpty();
     }

@@ -8,12 +8,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.core.convert.converter.Converter;
 import java.util.List;
+import com.example.tcc.jwt.CustomJwtConverter;
+import com.example.tcc.jwt.CustomJwt;
 
 @Configuration
 @EnableWebSecurity
@@ -22,29 +24,17 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//            .cors().and()
-//            .csrf().disable()
-//            .authorizeHttpRequests()
-//                .requestMatchers("/public").permitAll()
-//                .requestMatchers("/logout").permitAll()
-//                .requestMatchers(request -> request.getRequestURI().matches(".*\\.(jpg|pdf)$")).permitAll() // Permite arquivos .jpg e .pdf
-//                .anyRequest().authenticated()
-//            .and().oauth2Login(Customizer.withDefaults());
-//
-//        return http.build();
-        return http
-                .authorizeHttpRequests(
-                        authorizeConfig -> {
-                            authorizeConfig.requestMatchers("/public").permitAll();
-                            authorizeConfig.requestMatchers("/logout").permitAll();
-                            authorizeConfig.anyRequest().authenticated();
-                        })
-                .oauth2Login(Customizer.withDefaults())
-                .oauth2ResourceServer(config -> {
-                    config.jwt(Customizer.withDefaults());
-                })
-                .build();
+        http.cors(Customizer.withDefaults())
+                .authorizeHttpRequests(authorize -> authorize.anyRequest().authenticated())
+                .oauth2ResourceServer((oauth2) -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(customJwtConverter())
+                ));
+        http.sessionManagement(manager -> manager.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+        return http.build();
+    }
+
+    @Bean
+    public Converter<Jwt, CustomJwt> customJwtConverter() {
+        return new CustomJwtConverter();
     }
 
     @Bean

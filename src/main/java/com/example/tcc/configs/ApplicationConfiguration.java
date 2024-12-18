@@ -8,10 +8,8 @@ import org.springframework.context.annotation.Configuration;
 public class ApplicationConfiguration {
     @Value("${aws.s3.bucket.name}")
     private String bucketName;
-    @Value("${security.jwt.secret-key}")
-    private String jwtSecretKey;
-    @Value("${security.jwt.expiration-time}")
-    private long jwtExpiration;
+    @Value("${aws.s3.bucket.url}")
+    private String bucketURL;
     @Value("${ocr.server.endpoint}")
     private String ocrServerEndpoint;
 
@@ -21,19 +19,7 @@ public class ApplicationConfiguration {
     }
 
     @Bean
-    public String bucketURL() {
-        return "https://"+bucketName+".s3.us-east-1.amazonaws.com/";
-    }
-
-    @Bean
-    public String jwtSecretKey() {
-        return jwtSecretKey;
-    }
-
-    @Bean
-    public Long jwtExpiration() {
-        return jwtExpiration;
-    }
+    public String bucketURL() { return bucketURL; }
 
     @Bean
     public String ocrServerEndpoint() {

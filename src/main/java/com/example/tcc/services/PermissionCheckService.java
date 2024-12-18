@@ -20,19 +20,19 @@ public class PermissionCheckService {
     private final FileAssetRepository fileAssetRepository;
     private final ImageRepository imageRepository;
 
-    public Boolean checkPermissionForAsset(Long userId, Long assetId) {
+    public Boolean checkPermissionForAsset(String userEmail, Long assetId) {
         Optional<FileAssetModel> fileAssetModel = fileAssetRepository.findByAssetId(assetId);
-        return fileAssetModel.map(assetModel -> assetModel.getFile().getUserId().equals(userId)).orElse(false);
+        return fileAssetModel.map(assetModel -> assetModel.getFile().getUserEmail().equals(userEmail)).orElse(false);
     }
 
-    public Boolean checkPermissionForFile(Long userId, Long fileId) {
+    public Boolean checkPermissionForFile(String userEmail, Long fileId) {
         Optional<FileModel> fileModel = fileRepository.findById(fileId);
-        return fileModel.filter(model -> Objects.equals(model.getUserId(), userId)).isPresent();
+        return fileModel.filter(model -> Objects.equals(model.getUserEmail(), userEmail)).isPresent();
     }
 
-    public Boolean checkPermissionForImageFilename(Long userId, String filename) {
+    public Boolean checkPermissionForImageFilename(String userEmail, String filename) {
         List<ImageModel> images = imageRepository.findByFilename(filename);
         Optional<FileAssetModel> fileAssetModel = fileAssetRepository.findByAssetId(images.getFirst().getAsset().getId());
-        return fileAssetModel.map(assetModel -> assetModel.getFile().getUserId().equals(userId)).orElse(false);
+        return fileAssetModel.map(assetModel -> assetModel.getFile().getUserEmail().equals(userEmail)).orElse(false);
     }
 }

@@ -1,5 +1,6 @@
 package com.example.tcc.controllers;
 
+import com.example.tcc.jwt.CustomJwt;
 import com.example.tcc.requests.AssetConfirmationRequestDto;
 import com.example.tcc.responses.AssetConfirmationResponseDto;
 import com.example.tcc.responses.CreateAssetResponseDto;
@@ -7,7 +8,6 @@ import com.example.tcc.services.*;
 import com.example.tcc.util.ErrorResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.HttpClientErrorException;
@@ -17,6 +17,7 @@ import lombok.AllArgsConstructor;
 import java.util.HashMap;
 import java.util.Map;
 
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/asset")
 @AllArgsConstructor
@@ -31,8 +32,8 @@ public class AssetController {
 
     @PostMapping
     public ResponseEntity<?> create(@RequestParam Long fileId, @RequestParam MultipartFile image) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(!permissionCheckService.checkPermissionForFile((Long)authentication.getPrincipal(), fileId))
+        var jwt = (CustomJwt) SecurityContextHolder.getContext().getAuthentication();
+        if(!permissionCheckService.checkPermissionForFile(jwt.getEmail(), fileId))
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         try {
@@ -45,8 +46,8 @@ public class AssetController {
 
     @PostMapping("/confirm/{assetId}")
     public ResponseEntity<?> confirm(@PathVariable Long assetId, @RequestBody AssetConfirmationRequestDto requestDto) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(!permissionCheckService.checkPermissionForAsset((Long)authentication.getPrincipal(), assetId))
+        var jwt = (CustomJwt) SecurityContextHolder.getContext().getAuthentication();
+        if(!permissionCheckService.checkPermissionForAsset(jwt.getEmail(), assetId))
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         try {
@@ -66,8 +67,8 @@ public class AssetController {
 
     @GetMapping("/recognize/{assetId}")
     public ResponseEntity<?> recognizeAssetNumber(@PathVariable Long assetId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(!permissionCheckService.checkPermissionForAsset((Long)authentication.getPrincipal(), assetId))
+        var jwt = (CustomJwt) SecurityContextHolder.getContext().getAuthentication();
+        if(!permissionCheckService.checkPermissionForAsset(jwt.getEmail(), assetId))
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         try {
             CreateAssetResponseDto response = assetRecognitionService.recognize(assetId);
@@ -79,8 +80,8 @@ public class AssetController {
 
     @PostMapping("/add-image")
     public ResponseEntity<Map<String, String>> add(@RequestParam Long assetId, @RequestParam MultipartFile image) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(!permissionCheckService.checkPermissionForAsset((Long)authentication.getPrincipal(), assetId))
+        var jwt = (CustomJwt) SecurityContextHolder.getContext().getAuthentication();
+        if(!permissionCheckService.checkPermissionForAsset(jwt.getEmail(), assetId))
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         String filepath = assetImageAdditionService.add(assetId, image);
@@ -91,8 +92,8 @@ public class AssetController {
 
     @DeleteMapping("/delete-image/{filename}")
     public ResponseEntity<Void> deleteImage(@PathVariable String filename) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(!permissionCheckService.checkPermissionForImageFilename((Long)authentication.getPrincipal(), filename))
+        var jwt = (CustomJwt) SecurityContextHolder.getContext().getAuthentication();
+        if(!permissionCheckService.checkPermissionForImageFilename(jwt.getEmail(), filename))
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         assetImageDeletionService.delete(filename);
@@ -101,8 +102,8 @@ public class AssetController {
 
     @DeleteMapping("/{assetId}")
     public ResponseEntity<Void> deleteAsset(@PathVariable Long assetId) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if(!permissionCheckService.checkPermissionForAsset((Long)authentication.getPrincipal(), assetId))
+        var jwt = (CustomJwt) SecurityContextHolder.getContext().getAuthentication();
+        if(!permissionCheckService.checkPermissionForAsset(jwt.getEmail(), assetId))
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
 
         assetDeletionService.delete(assetId);
