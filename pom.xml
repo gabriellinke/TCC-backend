@@ -66,6 +66,13 @@
 			<version>4.5.1-2</version>
 		</dependency>
 
+		<!-- Dependência para arquivos CSV -->
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-csv</artifactId>
+			<version>1.10.0</version>
+		</dependency>
+
 		<!-- Dependência PDF -->
 		<!-- iText 7 Core -->
 		<dependency>

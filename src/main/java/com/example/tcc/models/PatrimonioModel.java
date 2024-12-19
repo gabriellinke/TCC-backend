@@ -25,7 +25,7 @@ public class PatrimonioModel {
     @Column(name = "tombo_antigo")
     private String tomboAntigo;
 
-    @Column(name = "descricao", length = 500)
+    @Column(name = "descricao", length = 2048)
     private String descricao;
 
     @Column(name = "estado_conservacao")
