@@ -86,7 +86,7 @@ public class PatrimonioController {
             }
 
             patrimonioRepository.saveAll(patrimonios);
-            return ResponseEntity.ok("Registros inseridos com sucesso.");
+            return ResponseEntity.ok().build();
 
         } catch (IOException e) {
             return ResponseEntity.status(500).body("Erro ao processar o arquivo.");
