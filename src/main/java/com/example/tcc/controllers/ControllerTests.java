@@ -1,7 +1,5 @@
 package com.example.tcc.controllers;
 
-import com.amazonaws.services.s3.model.Bucket;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.example.tcc.Representation.BucketObjectRepresentation;
 import com.example.tcc.services.AWSS3Service;
 import com.itextpdf.kernel.pdf.PdfDocument;
@@ -10,6 +8,8 @@ import com.itextpdf.layout.Document;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.services.s3.model.Bucket;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -22,64 +22,61 @@ import java.util.stream.Collectors;
 @RequestMapping("/buckets")
 @RequiredArgsConstructor
 public class ControllerTests {
+
     private final AWSS3Service s3Service;
 
     @GetMapping
-    public List<String> listBuckets(){
-        var buckets = s3Service.listBuckets();
-        return buckets.stream().map(Bucket::getName).collect(Collectors.toList());
+    public List<String> listBuckets() {
+        List<Bucket> buckets = s3Service.listBuckets();
+        return buckets.stream().map(Bucket::name).collect(Collectors.toList());
     }
 
-    @PostMapping(value = "/objects")
+    @PostMapping("/objects")
     public void createObject(@RequestBody BucketObjectRepresentation representation) throws IOException {
         s3Service.putObject(representation);
     }
 
-    @PostMapping(value = "/image")
+    @PostMapping("/image")
     public void createImage(@RequestParam String filename, @RequestParam MultipartFile image) throws IOException {
         s3Service.putImage(filename, image);
     }
 
-    @PostMapping(value = "/file")
+    @PostMapping("/file")
     public void createFile(@RequestParam String filename) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         PdfWriter writer = new PdfWriter(outputStream);
         PdfDocument pdfDoc = new PdfDocument(writer);
         Document document = new Document(pdfDoc);
-
-        // Add content to the PDF document (for example, a simple paragraph)
         document.add(new com.itextpdf.layout.element.Paragraph("Hello, S3! This is a test PDF."));
-
-        // Close the document to flush content to the outputStream
         document.close();
 
         s3Service.putPDF(filename, outputStream);
     }
 
-    @GetMapping(value = "/objects/{objectName}")
+    @GetMapping("/objects/{objectName}")
     public File downloadObject(@PathVariable String objectName) {
         s3Service.downloadObject(objectName);
         return new File("./" + objectName);
     }
 
-    @PatchMapping(value = "/{bucketSourceName}/objects/{objectName}/{bucketTargetName}")
+    @PatchMapping("/{bucketSourceName}/objects/{objectName}/{bucketTargetName}")
     public void moveObject(@PathVariable String bucketSourceName, @PathVariable String objectName, @PathVariable String bucketTargetName) {
         s3Service.moveObject(bucketSourceName, objectName, bucketTargetName);
     }
 
-    @GetMapping(value = "/objects")
+    @GetMapping("/objects")
     public List<String> listObjects() {
-        return s3Service.listObjects().stream().map(S3ObjectSummary::getKey).collect(Collectors.toList());
+        List<S3Object> objects = s3Service.listObjects();
+        return objects.stream().map(S3Object::key).collect(Collectors.toList());
     }
 
-    @DeleteMapping(value = "/objects/{objectName}")
+    @DeleteMapping("/objects/{objectName}")
     public void deleteObject(@PathVariable String objectName) {
         s3Service.deleteObject(objectName);
     }
 
-    @DeleteMapping(value = "/objects")
-    public void deleteObject(@RequestBody List<String> objects) {
+    @DeleteMapping("/objects")
+    public void deleteObjects(@RequestBody List<String> objects) {
         s3Service.deleteMultipleObjects(objects);
     }
-
 }
